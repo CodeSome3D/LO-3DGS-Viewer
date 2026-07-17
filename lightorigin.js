@@ -2,6 +2,7 @@ import { LightOrigin } from "./js/LightOrigin.js";
 // Core
 import { Serializer } from "./js/Serializer.js";
 import { ProjectManager } from "./js/ProjectManager.js";
+import { EventBus } from "./js/EventBus.js";
 
 // Cameras
 import { LOCamera } from "./js/LOCamera.js";
@@ -13,51 +14,41 @@ import { TourManager } from "./js/TourManager.js";
 import { TourUIManager } from "./js/TourUIManager.js";
 
 import { PickingManager } from "./js/PickingManager.js";
-import { UIManager } from "./js/UIManager.js";
+import { BackgroundManager } from "./js/BackgroundManager.js";
 
 window.lo = {
     projectcard: {
+
         name: "Untitled Project",
+
         version: 1,
 
         theme: "dark",
 
         autospinOnLoad: false,
-
+        
+        events: new EventBus(),
+        
         background: {
 
             type: "color",
-
             color: "#2a2a2a",
-
             gradient: {
-
                 mode: "linear",
-
                 angle: 135,
-
                 colors: [
-
                     "#202020",
-
                     "#606060"
-
                 ]
-
             },
 
             image: {
-
                 url: "",
-
                 fit: "cover"
-
             },
 
             panorama: {
-
                 url: ""
-
             }
 
         }
@@ -119,6 +110,7 @@ window.lo = {
         this.projectManager = new ProjectManager(this);
         this.uiManager = new UIManager(this);
         this.pickingManager = new PickingManager(this);
+        this.backgroundManager = new BackgroundManager(this);
 
         console.log("LightOrigin space initialized");
         
