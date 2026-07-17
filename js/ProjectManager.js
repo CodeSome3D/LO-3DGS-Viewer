@@ -218,38 +218,8 @@ export class ProjectManager {
 
     applyBackground() {
 
-        switch (this.lo.projectcard.background.type) {
+        this.lo.backgroundManager.apply();
 
-            case "transparent":
-
-                this.applyTransparent();
-
-                break;
-
-            case "color":
-
-                this.applyColor();
-
-                break;
-
-            case "gradient":
-
-                this.applyGradient();
-
-                break;
-
-            case "image":
-
-                this.applyImage();
-
-                break;
-
-            case "panorama":
-
-                this.applyPanorama();
-
-                break;
-        }
     }
 
     applyColor() {

@@ -13,6 +13,7 @@ import { HotspotManager } from "./js/HotspotManager.js";
 import { TourManager } from "./js/TourManager.js";
 import { TourUIManager } from "./js/TourUIManager.js";
 
+import { UIManager } from "./js/UIManager.js";
 import { PickingManager } from "./js/PickingManager.js";
 import { BackgroundManager } from "./js/BackgroundManager.js";
 
@@ -26,8 +27,6 @@ window.lo = {
         theme: "dark",
 
         autospinOnLoad: false,
-        
-        events: new EventBus(),
         
         background: {
 
@@ -48,7 +47,8 @@ window.lo = {
             },
 
             panorama: {
-                url: ""
+                url: "",
+                rotation: 0
             }
 
         }
@@ -107,10 +107,11 @@ window.lo = {
         this.tourManager = new TourManager(this);
         this.tourUIManager = new TourUIManager(this);
         this.serializer = new Serializer(this);
+        this.backgroundManager = new BackgroundManager(this);
         this.projectManager = new ProjectManager(this);
         this.uiManager = new UIManager(this);
         this.pickingManager = new PickingManager(this);
-        this.backgroundManager = new BackgroundManager(this);
+        
 
         console.log("LightOrigin space initialized");
         

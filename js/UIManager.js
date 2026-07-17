@@ -57,8 +57,7 @@ export class UIManager {
                             <option value="color">Solid Color</option>
                             <option value="gradient">Gradient</option>
                             <option value="image">Image</option>
-                            <!-- Future -->
-                            <!-- <option value="panorama">360° Panorama</option> -->
+                            <option value="panorama">360° Panorama</option>
                         </select>
 
                         <label for="lo-bg-picker">Color</label>
@@ -142,6 +141,26 @@ export class UIManager {
 
                         </div>
 
+                        <div id="lo-bg-panorama-settings" style="display:none">
+
+                            <label>Panorama image</label>
+
+                            <input
+                                id="lo-bg-panorama-url"
+                                class="lo-input"
+                                type="text"
+                                placeholder="assets/panorama.jpg">
+
+                            <label>Rotation (°)</label>
+
+                            <input
+                                id="lo-bg-panorama-rotation"
+                                class="lo-input"
+                                type="number"
+                                value="0">
+
+                        </div>
+
                         <button
                             id="lo-save-project"
                             class="lo-button">
@@ -213,19 +232,13 @@ export class UIManager {
             document.getElementById("lo-color-controls");
 
         colorControls.style.display =
-
             type.value === "color"
-
             ? "block"
-
             : "none";
 
         gradientControls.style.display =
-
             type.value === "gradient"
-
             ? "block"
-
             : "none";
 
         const gradientColor1 =
@@ -239,6 +252,9 @@ export class UIManager {
 
         const imageControls =
             document.getElementById("lo-image-controls");
+
+        const panoramaControls =
+            document.getElementById("lo-bg-panorama-settings");
 
         const imageButton =
             document.getElementById("lo-bg-image-select");
@@ -277,72 +293,61 @@ export class UIManager {
         type.onchange = () => {
 
             colorControls.style.display =
-
                 type.value === "color"
-
                 ? "block"
-
                 : "none";
 
             gradientControls.style.display =
-
                 type.value === "gradient"
-
                 ? "block"
-
                 : "none";
 
             imageControls.style.display =
-
                 type.value === "image"
-
                 ? "block"
+                : "none";
 
+            panoramaControls.style.display =
+                type.value === "panorama"
+                ? "block"
                 : "none";
 
             switch (type.value) {
 
                 case "transparent":
-
                     this.lo.setTransparentBackground();
-
                     break;
 
                 case "color":
-
                     this.lo.setBackgroundColor(
                         picker.value
                     );
-
                     break;
 
                 case "gradient":
-
                     this.lo.projectManager
                         .setBackgroundGradient(
-
                             "linear",
-
                             Number(
                                 gradientAngle.value
                             ),
-
                             [
                                 gradientColor1.value,
                                 gradientColor2.value
                             ]
                         );
-
                     break;
 
                 case "image":
-
                     this.lo.projectcard
                         .background.type = "image";
-
                     this.lo.projectManager
                         .applyBackground();
-
+                    break;
+                
+                case "panorama":
+                    this.lo.projectcard.background.type = "panorama";
+                    this.lo.projectManager.applyBackground();
                     break;
             }
         };
@@ -449,6 +454,29 @@ export class UIManager {
 
                 this.lo.projectManager
                     .applyBackground();
+
+            };
+
+            const panoramaURL =
+                document.getElementById("lo-bg-panorama-url");
+
+            const panoramaRotation =
+                document.getElementById("lo-bg-panorama-rotation");
+
+            panoramaURL.onchange = () => {
+
+                this.lo.projectcard.background.panorama.url =
+                    panoramaURL.value;
+
+                this.lo.projectManager.applyBackground();
+            };
+
+            panoramaRotation.onchange = () => {
+
+                this.lo.projectcard.background.panorama.rotation =
+                    Number(panoramaRotation.value);
+
+                this.lo.projectManager.applyBackground();
             };
 
             input.click();
@@ -534,6 +562,11 @@ export class UIManager {
                 "lo-gradient-controls"
             );
 
+        const panoramaControls =
+            document.getElementById(
+                "lo-bg-panorama-settings"
+            );
+
         if (controls) {
 
             controls.style.display =
@@ -544,6 +577,15 @@ export class UIManager {
 
                 : "none";
         }
+
+        if (panoramaControls) {
+
+            panoramaControls.style.display =
+                bg.type === "panorama"
+                ? "block"
+                : "none";
+        }
+
     }
 
     refreshHotspotList() {
