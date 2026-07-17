@@ -44,9 +44,9 @@ export class CameraManager {
         const orbit = this.lo.getController();
 
         //Camera speed
-        controller.rotateDamping = 0.9975;
-        controller.moveDamping = 0.9975;
-        controller.zoomDamping = 0.9975;
+        controller.rotateDamping = 0.9971;
+        controller.moveDamping = 0.9971;
+        controller.zoomDamping = 0.9971;
 
         controller._targetRootPose.position.set(
             camera.position.x,

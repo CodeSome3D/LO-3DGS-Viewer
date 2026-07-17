@@ -155,6 +155,12 @@ export class ProjectManager {
 
         };
 
+        // Remove hotspot elements from the previous project
+        for (const hotspot of this.lo.hotspots) {
+            hotspot.element?.remove();
+            hotspot.element = null;
+        }
+
         this.lo.cameras = project.cameras ?? {};
 
         this.lo.hotspots = project.hotspots ?? [];
