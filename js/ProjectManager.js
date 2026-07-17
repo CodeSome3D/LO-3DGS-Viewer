@@ -117,30 +117,6 @@ export class ProjectManager {
 
         };
 
-        this.lo.projectcard.background ??= {
-
-            type: "color",
-
-            color: "#2a2a2a"
-
-        };
-
-        this.lo.projectcard.background.gradient ??= {
-
-            mode: "linear",
-
-            angle: 135,
-
-            colors: [
-
-                "#202020",
-
-                "#606060"
-
-            ]
-
-        };
-
         this.lo.projectcard.background.image ??= {
 
             url: "",
