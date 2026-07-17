@@ -1,3 +1,4 @@
+import { LightOrigin } from "./js/LightOrigin.js";
 // Core
 import { Serializer } from "./js/Serializer.js";
 import { ProjectManager } from "./js/ProjectManager.js";
