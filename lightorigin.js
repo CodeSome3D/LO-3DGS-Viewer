@@ -250,10 +250,6 @@ window.lo = {
         console.log(Object.getOwnPropertyNames(controller._rootPose));
     },
 
-    captureCamera() {
-        return this.cameraManager.capture();
-    },
-
     setCamera(camera) {
         return this.cameraManager.apply(camera);
     },
@@ -278,20 +274,8 @@ window.lo = {
         return this.cameraManager.getOrbitController();
     },
 
-    saveCamera(name) {
-        return this.cameraManager.save(name);
-    },
-
-    goToCamera(name) {
-        return this.cameraManager.goTo(name);
-    },
-
     updateSelectedHotspotCamera() {
         return this.cameraManager.updateSelected();
-    },
-
-    listCameras() {
-        return this.cameraManager.list();
     },
 
     pick(x, y) {
@@ -312,7 +296,7 @@ window.lo = {
 
     focusPoint(point, distance = 20) {
 
-        const camera = this.captureCamera();
+        const camera = this.cameraManager.capture();
 
         const yaw = camera.angles.y * Math.PI / 180;
         const pitch = camera.angles.x * Math.PI / 180;

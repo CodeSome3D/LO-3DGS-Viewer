@@ -877,7 +877,7 @@ export class UIManager {
                     return;
                 }
 
-                this.lo.goToCamera(hotspot.cameraId);
+                this.lo.cameraManager.goTo(hotspot.cameraId);
 
             };
 
