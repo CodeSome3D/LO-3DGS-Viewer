@@ -6,6 +6,7 @@ export class BackgroundManager {
         this.panoramaEntity = null;
         this.panoramaMaterial = null;
         this.panoramaTexture = null;
+        this.panoramaInitialized = false;
     }
 
     apply() {
@@ -25,11 +26,19 @@ export class BackgroundManager {
                 break;
 
             case "image":
-                this.applyImage();
+
+                if (this.lo.projectcard.background.image.url.trim() !== "") {
+                    this.applyImage();
+                }
+
                 break;
 
             case "panorama":
-                this.applyPanorama();
+
+                if (this.lo.projectcard.background.panorama.url.trim() !== "") {
+                    this.applyPanorama();
+                }
+
                 break;
         }
     }
@@ -152,41 +161,85 @@ export class BackgroundManager {
     }
 
     applyPanorama() {
-
+        console.log("applyPanorama()");
         const bg = this.lo.projectcard.background;
         
         console.log("Panorama:", bg.panorama);
         
         const app = this.lo.viewer.global.app;
-        const canvas = app.graphicsDevice.canvas;
 
-        let background =
-            document.getElementById("lo-background");
+        if (!this.panoramaInitialized) {
 
-        if (!background) {
+            const Entity = this.lo.viewer.global.camera.constructor;
 
-            background = document.createElement("div");
-            background.id = "lo-background";
+            this.panoramaEntity = new Entity("Panorama");
 
-            canvas.parentNode.insertBefore(background, canvas);
+            this.panoramaEntity.addComponent("render", {
+                type: "sphere"
+            });
+
+            this.panoramaEntity.setLocalScale(500, 500, 500);
+
+            this.panoramaEntity.setPosition(
+                this.lo.viewer.global.camera.getPosition()
+            );
+
+            this.lo.viewer.global.camera.addChild(this.panoramaEntity);
+
+            this.panoramaEntity.setLocalPosition(0, 0, 0);
+            this.panoramaEntity.setLocalRotation(0, 0, 0);
+            this.panoramaEntity.setLocalScale(500, 500, 500);
+
+            this.panoramaInitialized = true;
+
+            console.log("Panorama sphere created.");
         }
 
-        background.style.display = "block";
+        app.assets.loadFromUrl(
+            bg.panorama.url,
+            "texture",
+            (err, asset) => {
 
-        background.style.background = "none";
+                if (err) {
+                    console.error(err);
+                    return;
+                }
 
-        background.style.backgroundImage =
-            `url("${bg.panorama.url}")`;
+                this.panoramaTexture = asset.resource;
 
-        background.style.backgroundRepeat = "no-repeat";
+                const meshInstance =
+                    this.panoramaEntity.render.meshInstances[0];
 
-        background.style.backgroundPosition = "center";
+                const Material =
+                    meshInstance.material.constructor;
 
-        background.style.backgroundSize = "contain";
+                const material = new Material();
 
-        this.lo.getPCCamera().clearColor.set(0,0,0,0);
+                material.diffuse.set(0, 0, 0);
 
-        app.renderNextFrame = true;
+                material.emissive.set(1, 1, 1);
+                material.emissiveMap = this.panoramaTexture;
+
+                material.useLighting = false;
+                material.useSkybox = false;
+
+                material.cull = 0;
+                material.depthWrite = false;
+                material.depthTest = false;
+
+                material.update();
+
+                meshInstance.material = material;
+
+                this.panoramaMaterial = material;
+
+                this.lo.getPCCamera().clearColor.set(0, 0, 0, 0);
+
+                app.renderNextFrame = true;
+
+                console.log("Panorama material applied.");
+            }
+        );
     }
 
 }

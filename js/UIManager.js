@@ -143,13 +143,19 @@ export class UIManager {
 
                         <div id="lo-bg-panorama-settings" style="display:none">
 
-                            <label>Panorama image</label>
+                            <button
+                                id="lo-bg-panorama-select"
+                                class="lo-button">
 
-                            <input
-                                id="lo-bg-panorama-url"
-                                class="lo-input"
-                                type="text"
-                                placeholder="assets/panorama.jpg">
+                                Select Panorama
+
+                            </button>
+
+                            <div id="lo-bg-panorama-name">
+
+                                No panorama selected
+
+                            </div>
 
                             <label>Rotation (°)</label>
 
@@ -339,15 +345,25 @@ export class UIManager {
                     break;
 
                 case "image":
-                    this.lo.projectcard
-                        .background.type = "image";
-                    this.lo.projectManager
-                        .applyBackground();
+
+                    if (this.lo.projectcard.background.image.url !== "") {
+
+                        this.lo.projectcard.background.type = "image";
+                        this.lo.projectManager.applyBackground();
+
+                    }
+
                     break;
-                
+
                 case "panorama":
-                    this.lo.projectcard.background.type = "panorama";
-                    this.lo.projectManager.applyBackground();
+
+                    if (this.lo.projectcard.background.panorama.url !== "") {
+
+                        this.lo.projectcard.background.type = "panorama";
+                        this.lo.projectManager.applyBackground();
+
+                    }
+
                     break;
             }
         };
@@ -457,18 +473,56 @@ export class UIManager {
 
             };
 
-            const panoramaURL =
-                document.getElementById("lo-bg-panorama-url");
+            input.click();
+        };
+
+            const panoramaButton =
+                document.getElementById("lo-bg-panorama-select");
+
+            const panoramaName =
+                document.getElementById("lo-bg-panorama-name");
 
             const panoramaRotation =
                 document.getElementById("lo-bg-panorama-rotation");
 
-            panoramaURL.onchange = () => {
+            panoramaButton.onclick = () => {
 
-                this.lo.projectcard.background.panorama.url =
-                    panoramaURL.value;
+                const input =
+                    document.createElement("input");
 
-                this.lo.projectManager.applyBackground();
+                input.type = "file";
+
+                input.accept =
+                    "image/*";
+
+                input.onchange = e => {
+
+                    const file =
+                        e.target.files[0];
+
+                    if (!file) {
+                        return;
+                    }
+
+                    this.lo.projectcard
+                        .background.panorama.file = file;
+
+                    panoramaName.textContent =
+                        file.name;
+
+                    this.lo.projectcard
+                        .background.type = "panorama";
+
+                    this.lo.projectcard
+                        .background.panorama.url =
+                            "assets/" + file.name;
+
+                    this.lo.projectManager
+                        .applyBackground();
+
+                };
+
+                input.click();
             };
 
             panoramaRotation.onchange = () => {
@@ -478,9 +532,6 @@ export class UIManager {
 
                 this.lo.projectManager.applyBackground();
             };
-
-            input.click();
-        };
 
         const projectName = document.getElementById("lo-project-name");
 
