@@ -564,8 +564,14 @@ function init() {
 
         window.lo.tourUIManager.create();
 
+        const params = new URLSearchParams(window.location.search);
+
+        const projectUrl =
+            params.get("project")
+            ?? "project.lo.json";
+
         window.lo
-            .loadProjectFromURL("project.lo.json")
+            .loadProjectFromURL(projectUrl)
             .then(() => {
 
                 if (

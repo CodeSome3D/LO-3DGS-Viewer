@@ -7,6 +7,7 @@ export class BackgroundManager {
         this.panoramaMaterial = null;
         this.panoramaTexture = null;
         this.panoramaInitialized = false;
+        this.currentPanoramaUrl = null;
     }
 
     apply() {
@@ -46,6 +47,7 @@ export class BackgroundManager {
     async applyTransparent() {
 
         await this.lo.viewer.setSkybox(null);
+        this.currentPanoramaUrl = null;
 
         const background =
             document.getElementById("lo-background");
@@ -67,6 +69,7 @@ export class BackgroundManager {
     async applyColor() {
 
         await this.lo.viewer.setSkybox(null);
+        this.currentPanoramaUrl = null;
 
         const background =
             document.getElementById("lo-background");
@@ -98,6 +101,7 @@ export class BackgroundManager {
     async applyGradient() {
 
         await this.lo.viewer.setSkybox(null);
+        this.currentPanoramaUrl = null;
 
         const bg = this.lo.projectcard.background;
         const app = this.lo.viewer.global.app;
@@ -136,6 +140,7 @@ export class BackgroundManager {
     async applyImage() {
 
         await this.lo.viewer.setSkybox(null);
+        this.currentPanoramaUrl = null;
 
         const bg = this.lo.projectcard.background;
         const app = this.lo.viewer.global.app;
@@ -170,12 +175,15 @@ export class BackgroundManager {
 
     async applyPanorama() {
 
-        await this.lo.viewer.setSkybox(
-            this.lo.projectcard.background.panorama.url
-        );
+        const panorama = this.lo.projectcard.background.panorama;
 
-        this.lo.viewer.setSkyboxRotation(
-            this.lo.projectcard.background.panorama.rotation
-        );
+        if (this.currentPanoramaUrl !== panorama.url) {
+
+            await this.lo.viewer.setSkybox(panorama.url);
+
+            this.currentPanoramaUrl = panorama.url;
+        }
+
+        this.lo.viewer.setSkyboxRotation(panorama.rotation);
     }
 }

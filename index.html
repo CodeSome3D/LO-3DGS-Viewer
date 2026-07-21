@@ -19,7 +19,9 @@
             const skyboxUrl = url.searchParams.get('skybox');
             const collisionUrl = url.searchParams.get('collision') ?? url.searchParams.get('voxel');
             const settingsUrl = url.searchParams.has('settings') ? url.searchParams.get('settings') : './settings.json';
-            const contentUrl = url.searchParams.has('content') ? url.searchParams.get('content') : './scene.sog';
+//          const contentUrl = url.searchParams.has('scene') ? url.searchParams.get('content') : './scene.sog';
+
+            const contentUrl = url.searchParams.get('scene') ?? url.searchParams.get('content') ?? './scene.sog';
 
             const renderer = url.searchParams.has('webgl') ? 'webgl' : 'webgpu';
 

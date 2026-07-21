@@ -45,7 +45,9 @@ export class ProjectManager {
 
             name: "Untitled Project",
 
-            version: 1,
+            version: 2,
+
+            scene: "./scene.sog",
 
             theme: "dark",
 
@@ -83,7 +85,9 @@ export class ProjectManager {
 
                 panorama: {
 
-                    url: ""
+                    url: "",
+
+                    rotation: 0
 
                 }
 
@@ -92,6 +96,8 @@ export class ProjectManager {
         };
 
         this.lo.projectcard.autospinOnLoad ??= false;
+
+        this.lo.projectcard.scene ??= "./scene.sog";
 
         this.lo.projectcard.background ??= {
 
@@ -127,9 +133,12 @@ export class ProjectManager {
 
         this.lo.projectcard.background.panorama ??= {
 
-            url: ""
+            url: "",
+            rotation: 0
 
         };
+
+        this.lo.projectcard.background.panorama.rotation ??= 0;
 
         // Remove hotspot elements from the previous project
         for (const hotspot of this.lo.hotspots) {
