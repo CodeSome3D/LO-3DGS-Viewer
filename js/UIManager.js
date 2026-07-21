@@ -157,12 +157,17 @@ export class UIManager {
 
                             </div>
 
-                            <label>Rotation (°)</label>
+                            <label for="lo-bg-panorama-rotation">
+                                Rotation:
+                                <span id="lo-bg-panorama-rotation-value">0°</span>
+                            </label>
 
                             <input
                                 id="lo-bg-panorama-rotation"
-                                class="lo-input"
-                                type="number"
+                                type="range"
+                                min="-180"
+                                max="180"
+                                step="1"
                                 value="0">
 
                         </div>
@@ -485,6 +490,9 @@ export class UIManager {
             const panoramaRotation =
                 document.getElementById("lo-bg-panorama-rotation");
 
+            const panoramaRotationValue =
+                document.getElementById("lo-bg-panorama-rotation-value");
+
             panoramaButton.onclick = () => {
 
                 const input =
@@ -525,12 +533,15 @@ export class UIManager {
                 input.click();
             };
 
-            panoramaRotation.onchange = () => {
+            panoramaRotation.oninput = () => {
 
-                this.lo.projectcard.background.panorama.rotation =
-                    Number(panoramaRotation.value);
+                const rotation = Number(panoramaRotation.value);
 
-                this.lo.projectManager.applyBackground();
+                panoramaRotationValue.textContent = `${rotation}°`;
+
+                this.lo.projectcard.background.panorama.rotation = rotation;
+
+                this.lo.viewer.setSkyboxRotation(rotation);
             };
 
         const projectName = document.getElementById("lo-project-name");
@@ -635,6 +646,20 @@ export class UIManager {
                 bg.type === "panorama"
                 ? "block"
                 : "none";
+        }
+
+        const panoramaRotation =
+            document.getElementById("lo-bg-panorama-rotation");
+
+        const panoramaRotationValue =
+            document.getElementById("lo-bg-panorama-rotation-value");
+
+        if (panoramaRotation && panoramaRotationValue) {
+
+            panoramaRotation.value = bg.panorama.rotation ?? 0;
+
+            panoramaRotationValue.textContent =
+                `${bg.panorama.rotation ?? 0}°`;
         }
 
     }

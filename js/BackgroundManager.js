@@ -43,7 +43,30 @@ export class BackgroundManager {
         }
     }
 
-    applyColor() {
+    async applyTransparent() {
+
+        await this.lo.viewer.setSkybox(null);
+
+        const background =
+            document.getElementById("lo-background");
+
+        if (background)
+            background.style.display = "none";
+
+        const gradient =
+            document.getElementById("lo-gradient-background");
+
+        if (gradient)
+            gradient.style.display = "none";
+
+        this.lo.getPCCamera().clearColor.set(0,0,0,0);
+
+        this.lo.viewer.global.app.renderNextFrame = true;
+    }
+
+    async applyColor() {
+
+        await this.lo.viewer.setSkybox(null);
 
         const background =
             document.getElementById("lo-background");
@@ -72,26 +95,9 @@ export class BackgroundManager {
         this.lo.viewer.global.app.renderNextFrame = true;
     }
 
-    applyTransparent() {
+    async applyGradient() {
 
-        const background =
-            document.getElementById("lo-background");
-
-        if (background)
-            background.style.display = "none";
-
-        const gradient =
-            document.getElementById("lo-gradient-background");
-
-        if (gradient)
-            gradient.style.display = "none";
-
-        this.lo.getPCCamera().clearColor.set(0,0,0,0);
-
-        this.lo.viewer.global.app.renderNextFrame = true;
-    }
-
-    applyGradient() {
+        await this.lo.viewer.setSkybox(null);
 
         const bg = this.lo.projectcard.background;
         const app = this.lo.viewer.global.app;
@@ -127,7 +133,9 @@ export class BackgroundManager {
         app.renderNextFrame = true;
     }
 
-    applyImage() {
+    async applyImage() {
+
+        await this.lo.viewer.setSkybox(null);
 
         const bg = this.lo.projectcard.background;
         const app = this.lo.viewer.global.app;
@@ -160,86 +168,14 @@ export class BackgroundManager {
         app.renderNextFrame = true;
     }
 
-    applyPanorama() {
-        console.log("applyPanorama()");
-        const bg = this.lo.projectcard.background;
-        
-        console.log("Panorama:", bg.panorama);
-        
-        const app = this.lo.viewer.global.app;
+    async applyPanorama() {
 
-        if (!this.panoramaInitialized) {
+        await this.lo.viewer.setSkybox(
+            this.lo.projectcard.background.panorama.url
+        );
 
-            const Entity = this.lo.viewer.global.camera.constructor;
-
-            this.panoramaEntity = new Entity("Panorama");
-
-            this.panoramaEntity.addComponent("render", {
-                type: "sphere"
-            });
-
-            this.panoramaEntity.setLocalScale(500, 500, 500);
-
-            this.panoramaEntity.setPosition(
-                this.lo.viewer.global.camera.getPosition()
-            );
-
-            this.lo.viewer.global.camera.addChild(this.panoramaEntity);
-
-            this.panoramaEntity.setLocalPosition(0, 0, 0);
-            this.panoramaEntity.setLocalRotation(0, 0, 0);
-            this.panoramaEntity.setLocalScale(500, 500, 500);
-
-            this.panoramaInitialized = true;
-
-            console.log("Panorama sphere created.");
-        }
-
-        app.assets.loadFromUrl(
-            bg.panorama.url,
-            "texture",
-            (err, asset) => {
-
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-
-                this.panoramaTexture = asset.resource;
-
-                const meshInstance =
-                    this.panoramaEntity.render.meshInstances[0];
-
-                const Material =
-                    meshInstance.material.constructor;
-
-                const material = new Material();
-
-                material.diffuse.set(0, 0, 0);
-
-                material.emissive.set(1, 1, 1);
-                material.emissiveMap = this.panoramaTexture;
-
-                material.useLighting = false;
-                material.useSkybox = false;
-
-                material.cull = 0;
-                material.depthWrite = false;
-                material.depthTest = false;
-
-                material.update();
-
-                meshInstance.material = material;
-
-                this.panoramaMaterial = material;
-
-                this.lo.getPCCamera().clearColor.set(0, 0, 0, 0);
-
-                app.renderNextFrame = true;
-
-                console.log("Panorama material applied.");
-            }
+        this.lo.viewer.setSkyboxRotation(
+            this.lo.projectcard.background.panorama.rotation
         );
     }
-
 }

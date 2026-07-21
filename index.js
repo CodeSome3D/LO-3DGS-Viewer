@@ -29236,8 +29236,9 @@ class Scene extends EventHandler {
 			}
 			if (!this._skyboxRotationShaderInclude && !isIdentity) {
 				this._skyboxRotationShaderInclude = true;
-				this._resetSkyMesh();
 			}
+
+			this._resetSkyMesh();
 		}
 	}
 	get skyboxRotation() {
@@ -90159,7 +90160,47 @@ const main = async (canvas, settingsJson, config) => {
         });
     }
     // Create the viewer
-    return new Viewer(global, gsplatLoad, skyboxLoad, collisionLoad);
+    //return new Viewer(global, gsplatLoad, skyboxLoad, collisionLoad);
+	
+	const viewer = new Viewer(
+		global,
+		gsplatLoad,
+		skyboxLoad,
+		collisionLoad
+	);
+
+	viewer.setSkybox = async (url) => {
+
+		const old = app.assets.find("skybox");
+
+		if (old) {
+			old.unload?.();
+			app.assets.remove(old);
+		}
+
+		if (!url) {
+			app.scene.envAtlas = null;
+			return;
+		}
+
+		const asset = await loadSkybox(app, url);
+
+		app.scene.envAtlas = asset.resource;
+	};
+
+	viewer.setSkyboxRotation = (degrees) => {
+
+		const q = new Quat();
+
+		q.setFromEulerAngles(0, degrees, 0);
+
+		app.scene.skyboxRotation = q;
+
+		app.renderNextFrame = true;
+
+	};
+
+	return viewer;	
 };
 console.log(`SuperSplat Viewer v${version} | Engine v${version$1} (${revision})`);
 
