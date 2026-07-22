@@ -63,7 +63,6 @@
             window.project = null;
 
         import { main } from './index.js';
-import { Serializer } from './js/Serializer.js';
 
         const { poster } = sseConfig;
 
@@ -92,6 +91,7 @@ import { Serializer } from './js/Serializer.js';
             const serializer = new Serializer();
 
             return serializer.import(await response.text());
+
         }
 
         function getProjectValue(key, fallback) {
@@ -674,7 +674,7 @@ import { Serializer } from './js/Serializer.js';
         <!-- Application Script -->
         <script type="module">
             import { main } from './index.js';
-import { Serializer } from './js/Serializer.js';
+            import { Serializer } from './js/Serializer.js';
         </script>
         <script type="module" src="./js/LightOrigin.js"></script>
         <script type="module" src="./lightorigin.js"></script>

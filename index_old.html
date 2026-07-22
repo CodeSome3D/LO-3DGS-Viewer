@@ -31,12 +31,9 @@
 
         function createSseConfig(contentUrl) {
             return {
-                poster: (() => {
-                    const url = getProjectValue("poster", posterUrl);
-                    return url ? createImage(url) : null;
-                })(),
-                skyboxUrl: getProjectValue("skybox", skyboxUrl),
-                collisionUrl: getProjectValue("collision", collisionUrl),
+                poster: posterUrl && createImage(posterUrl),
+                skyboxUrl,
+                collisionUrl,
                 contentUrl,
                 contents: fetch("index.sog"),
                 noui: url.searchParams.has('noui'),
@@ -60,10 +57,8 @@
                 config: sseConfig,
                 settings: fetch(settingsUrl).then(response => response.json())
             };
-            window.project = null;
 
         import { main } from './index.js';
-import { Serializer } from './js/Serializer.js';
 
         const { poster } = sseConfig;
 
@@ -89,41 +84,7 @@ import { Serializer } from './js/Serializer.js';
                 throw new Error(`Failed to load project: ${projectUrl}`);
             }
 
-            const serializer = new Serializer();
-
-            return serializer.import(await response.text());
-        }
-
-        function getProjectValue(key, fallback) {
-
-            if (!window.project) {
-                return fallback;
-            }
-
-            // New format
-            if (window.project.viewer?.[key] !== undefined) {
-                return window.project.viewer[key];
-            }
-
-            // Legacy format
-            if (window.project[key] !== undefined) {
-                return window.project[key];
-            }
-
-            return fallback;
-
-        }
-
-        function getProjectSection(name, fallback = null) {
-
-            if (!window.project) {
-                return fallback;
-            }
-
-            const section = window.project[name];
-
-            return section !== undefined ? section : fallback;
-
+            return await response.json();
         }
 
         async function createViewer(config) {
@@ -143,10 +104,10 @@ import { Serializer } from './js/Serializer.js';
 
             if (projectUrl) {
 
-                window.project = await loadProject(projectUrl);
+                const project = await loadProject(projectUrl);
 
-                if (window.project?.scene) {
-                    viewerContentUrl = window.project.scene;
+                if (project?.scene) {
+                    viewerContentUrl = project.scene;
                 }
 
             }
@@ -674,7 +635,6 @@ import { Serializer } from './js/Serializer.js';
         <!-- Application Script -->
         <script type="module">
             import { main } from './index.js';
-import { Serializer } from './js/Serializer.js';
         </script>
         <script type="module" src="./js/LightOrigin.js"></script>
         <script type="module" src="./lightorigin.js"></script>
