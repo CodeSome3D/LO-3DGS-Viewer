@@ -566,28 +566,29 @@ function init() {
 
         const params = new URLSearchParams(window.location.search);
 
-        const projectUrl =
-            params.get("project")
-            ?? "project.lo.json";
+        const projectUrl = params.get("project");
 
-        window.lo
-            .loadProjectFromURL(projectUrl)
-            .then(() => {
+        if (projectUrl) {
+            window.lo
+                .loadProjectFromURL(projectUrl)
+                .then(() => {
+                    window.lo.setTheme(window.lo.projectcard.theme);
 
-                if (
-                    !window.lo.projectcard.autospinOnLoad
-                ) {
-
-                    window.lo.tourManager.start();
-                }
-            })
-            .catch(error => {
-
-                console.error(
-                    "Viewer project load failed:",
-                    error
-                );
-            });
+                    if (!window.lo.projectcard.autospinOnLoad) {
+                        window.lo.tourManager.start();
+                    }
+                })
+                .catch(error => {
+                    console.error(
+                        "Viewer project load failed:",
+                        error
+                    );
+                });
+        } else {
+            if (!window.lo.projectcard.autospinOnLoad) {
+                window.lo.tourManager.start();
+            }
+        }
 
         const logo =
             document.getElementById("viewerBranding");

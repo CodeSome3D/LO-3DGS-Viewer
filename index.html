@@ -100,9 +100,14 @@ import { Serializer } from './js/Serializer.js';
                 return fallback;
             }
 
-            // New format
+            // Viewer override section
             if (window.project.viewer?.[key] !== undefined) {
                 return window.project.viewer[key];
+            }
+
+            // Editor-saved project format
+            if (window.project.project?.[key] !== undefined) {
+                return window.project.project[key];
             }
 
             // Legacy format
@@ -120,9 +125,15 @@ import { Serializer } from './js/Serializer.js';
                 return fallback;
             }
 
-            const section = window.project[name];
+            if (window.project[name] !== undefined) {
+                return window.project[name];
+            }
 
-            return section !== undefined ? section : fallback;
+            if (window.project.project?.[name] !== undefined) {
+                return window.project.project[name];
+            }
+
+            return fallback;
 
         }
 
@@ -145,8 +156,12 @@ import { Serializer } from './js/Serializer.js';
 
                 window.project = await loadProject(projectUrl);
 
-                if (window.project?.scene) {
-                    viewerContentUrl = window.project.scene;
+                const sceneFromProject =
+                    window.project?.project?.scene ??
+                    window.project?.scene;
+
+                if (sceneFromProject) {
+                    viewerContentUrl = sceneFromProject;
                 }
 
             }
