@@ -220,9 +220,21 @@ export class ProjectManager {
         this.import(json);
     }
 
+    getProjectFolder(name = this.lo.projectcard.name) {
+
+        const slug = String(name || "Untitled Project")
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "_")
+            .replace(/[^a-z0-9_-]/g, "");
+
+        return `projects/${slug}`;
+    }
+
     setName(name) {
 
         this.lo.projectcard.name = name;
+        this.lo.projectcard.folder ??= this.getProjectFolder(name);
     }
 
     applyBackground() {

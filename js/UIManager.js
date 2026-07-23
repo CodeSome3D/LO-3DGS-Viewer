@@ -183,6 +183,24 @@ export class UIManager {
                             class="lo-button">
                             📂 Open Project
                         </button>
+
+                        <button
+                            id="lo-upload-model"
+                            class="lo-button">
+                            📤 Upload 3DGS
+                        </button>
+
+                        <button
+                            id="lo-delete-model"
+                            class="lo-button">
+                            🗑 Delete 3DGS
+                        </button>
+
+                        <div
+                            id="lo-model-file"
+                            class="lo-project-file">
+                            No model selected
+                        </div>
                     </div>
 
                 </div>
@@ -300,6 +318,52 @@ export class UIManager {
 
             input.click();
         };
+
+        const uploadModelButton = document.getElementById("lo-upload-model");
+        const deleteModelButton = document.getElementById("lo-delete-model");
+        const modelFileName = document.getElementById("lo-model-file");
+
+        const refreshModelFile = () => {
+            if (!modelFileName) {
+                return;
+            }
+
+            const scene = this.lo.projectcard.scene;
+            modelFileName.textContent = scene
+                ? scene
+                : "No model selected";
+
+            if (deleteModelButton) {
+                deleteModelButton.disabled = !scene;
+            }
+        };
+
+        uploadModelButton.onclick = () => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".sog,.splat,.ply";
+
+            input.onchange = e => {
+                const file = e.target.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+                this.lo.projectcard.folder ??= this.lo.projectManager.getProjectFolder(this.lo.projectcard.name);
+                this.lo.projectcard.scene = `${this.lo.projectcard.folder}/${file.name}`;
+                refreshModelFile();
+            };
+
+            input.click();
+        };
+
+        deleteModelButton.onclick = () => {
+            this.lo.projectcard.scene = "";
+            refreshModelFile();
+        };
+
+        refreshModelFile();
 
         type.onchange = () => {
 
@@ -563,7 +627,9 @@ export class UIManager {
             const finish = (save) => {
 
                 if (save) {
-                    this.lo.projectcard.name = input.value.trim() || "Untitled Project";
+                    this.lo.projectManager.setName(
+                        input.value.trim() || "Untitled Project"
+                    );
                 }
 
                 this.refresh();

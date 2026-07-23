@@ -1,0 +1,32 @@
+{
+  "project": {
+    "name": "Cactus",
+    "version": 1,
+    "theme": "dark",
+    "autospinOnLoad": false,
+    "background": {
+      "type": "color",
+      "color": "#0A1D24",
+      "gradient": {
+        "mode": "linear",
+        "angle": 135,
+        "colors": [
+          "#202020",
+          "#606060"
+        ]
+      },
+      "image": {
+        "url": "",
+        "fit": "cover"
+      },
+      "panorama": {
+        "url": "",
+        "rotation": 0
+      }
+    },
+    "folder": "projects/untitled_project",
+    "scene": "projects/untitled_project/cactus.sog"
+  },
+  "cameras": {},
+  "hotspots": []
+}
