@@ -1,0 +1,112 @@
+{
+  "project": {
+    "name": "Cactus",
+    "version": 1,
+    "theme": "dark",
+    "autospinOnLoad": true,
+    "background": {
+      "type": "image",
+      "color": "#0A1D24",
+      "gradient": {
+        "mode": "linear",
+        "angle": 0,
+        "colors": [
+          "#23140b",
+          "#685f03"
+        ]
+      },
+      "image": {
+        "url": "assets/image.png",
+        "fit": "cover",
+        "file": {}
+      },
+      "panorama": {
+        "url": "",
+        "rotation": 0
+      }
+    },
+    "folder": "projects/01_cactus"
+  },
+  "cameras": {
+    "camera-0": {
+      "position": {
+        "x": -0.051052959880932836,
+        "y": -0.0905760422448103,
+        "z": 0.8547182785006499
+      },
+      "angles": {
+        "x": -27.82442361600258,
+        "y": -76.51871024396897,
+        "z": 0
+      },
+      "distance": 4.099334530420908,
+      "fov": 75
+    },
+    "camera-1": {
+      "position": {
+        "x": -0.23585622994549893,
+        "y": 0.7409408541995389,
+        "z": -0.31215176216149976
+      },
+      "angles": {
+        "x": -10.09411871220391,
+        "y": -171.88898252738917,
+        "z": 0
+      },
+      "distance": 2.7446879420861157,
+      "fov": 75
+    },
+    "camera-2": {
+      "position": {
+        "x": -0.15733924310848724,
+        "y": 1.8122330407152154,
+        "z": 0.05760605298773924
+      },
+      "angles": {
+        "x": -14.644467366261225,
+        "y": -61.276708698343214,
+        "z": 0
+      },
+      "distance": 2.150555953154295,
+      "fov": 75
+    }
+  },
+  "hotspots": [
+    {
+      "id": "1784894763380",
+      "title": "Base",
+      "description": "Scanning base",
+      "color": "#41352a",
+      "position": {
+        "x": -0.05105295988093334,
+        "y": -0.09057604224481001,
+        "z": 0.8547182785006492
+      },
+      "cameraId": "camera-0"
+    },
+    {
+      "id": "1784894781621",
+      "title": "Pot",
+      "description": "Cactus pot",
+      "color": "#a76237",
+      "position": {
+        "x": -0.23585622994549846,
+        "y": 0.7409408541995388,
+        "z": -0.3121517621614996
+      },
+      "cameraId": "camera-1"
+    },
+    {
+      "id": "1784894817326",
+      "title": "Cactus",
+      "description": "Cactus itself",
+      "color": "#a4c366",
+      "position": {
+        "x": -0.1573392431084866,
+        "y": 1.8122330407152154,
+        "z": 0.057606052987739166
+      },
+      "cameraId": "camera-2"
+    }
+  ]
+}

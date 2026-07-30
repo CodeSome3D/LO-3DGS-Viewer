@@ -204,6 +204,10 @@ export class ProjectManager {
 
     async loadFromURL(url) {
 
+        if (!url.includes('/') && !url.endsWith('.json')) {
+            url = `./projects/${url}/${url}.json`;
+        }
+
         const response =
             await fetch(url);
 

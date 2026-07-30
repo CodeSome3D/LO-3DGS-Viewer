@@ -19,10 +19,15 @@
             const skyboxUrl = url.searchParams.get('skybox');
             const collisionUrl = url.searchParams.get('collision') ?? url.searchParams.get('voxel');
             const settingsUrl = url.searchParams.has('settings') ? url.searchParams.get('settings') : './settings.json';
-//          const contentUrl = url.searchParams.has('scene') ? url.searchParams.get('content') : './scene.sog';
 
-            const projectUrl = url.searchParams.get('project');
-            const contentUrl = url.searchParams.get('scene') ?? url.searchParams.get('content') ?? './scene.sog';
+            const projectName = url.searchParams.get('project');
+
+            const contentUrl =
+                url.searchParams.get('scene') ??
+                url.searchParams.get('content') ??
+                (projectName
+                    ? `./projects/${projectName}/${projectName}.sog`
+                    : './scene.sog');
 
             const renderer = url.searchParams.has('webgl') ? 'webgl' : 'webgpu';
 
@@ -38,7 +43,7 @@
                 skyboxUrl: getProjectValue("skybox", skyboxUrl),
                 collisionUrl: getProjectValue("collision", collisionUrl),
                 contentUrl,
-                contents: fetch("index.sog"),
+                contents: fetch(contentUrl),
                 noui: url.searchParams.has('noui'),
                 noanim: url.searchParams.has('noanim'),
                 nofx: url.searchParams.has('nofx'),
@@ -77,11 +82,13 @@ import { Serializer } from './js/Serializer.js';
             document.documentElement.style.setProperty('--canvas-opacity', '0');
         }
 
-        async function loadProject(projectUrl) {
+        async function loadProject(projectName) {
 
-            if (!projectUrl) {
+            if (!projectName) {
                 return null;
             }
+
+            const projectUrl = `./projects/${projectName}/${projectName}.json`;
 
             const response = await fetch(projectUrl);
 
@@ -152,17 +159,11 @@ import { Serializer } from './js/Serializer.js';
 
             let viewerContentUrl = contentUrl;
 
-            if (projectUrl) {
+            if (projectName) {
 
-                window.project = await loadProject(projectUrl);
+                window.project = await loadProject(projectName);
 
-                const sceneFromProject =
-                    window.project?.project?.scene ??
-                    window.project?.scene;
-
-                if (sceneFromProject) {
-                    viewerContentUrl = sceneFromProject;
-                }
+                viewerContentUrl = `./projects/${projectName}/${projectName}.sog`;
 
             }
 
