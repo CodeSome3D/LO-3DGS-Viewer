@@ -33,9 +33,7 @@ export function createViewerConfig(contentUrl) {
         skyboxUrl,
         collisionUrl,
 
-        contentUrl,
-
-        contents: fetch("index.sog"),
+        contents: contentUrl ? fetch(contentUrl) : null,
 
         noui: url.searchParams.has("noui"),
         noanim: url.searchParams.has("noanim"),
