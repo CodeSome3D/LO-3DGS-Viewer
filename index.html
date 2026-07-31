@@ -22,12 +22,17 @@
 
             const projectName = url.searchParams.get('project');
 
+            const isViewer =
+                url.searchParams.get('mode') === 'viewer';
+
             const contentUrl =
                 url.searchParams.get('scene') ??
                 url.searchParams.get('content') ??
-                (projectName
-                    ? `./projects/${projectName}/${projectName}.sog`
-                    : './scene.sog');
+                (
+                    isViewer && projectName
+                        ? `./projects/${projectName}/${projectName}.sog`
+                        : ""
+                );
 
             const renderer = url.searchParams.has('webgl') ? 'webgl' : 'webgpu';
 
@@ -43,7 +48,7 @@
                 skyboxUrl: getProjectValue("skybox", skyboxUrl),
                 collisionUrl: getProjectValue("collision", collisionUrl),
                 contentUrl,
-                contents: fetch(contentUrl),
+                contents: contentUrl ? fetch(contentUrl) : null,
                 noui: url.searchParams.has('noui'),
                 noanim: url.searchParams.has('noanim'),
                 nofx: url.searchParams.has('nofx'),
@@ -59,7 +64,7 @@
             };
         }
 
-        const sseConfig = createSseConfig(contentUrl);
+        const sseConfig = createSseConfig("");  //<--contentUrl
 
             window.sse = {
                 config: sseConfig,
@@ -157,7 +162,7 @@ import { Serializer } from './js/Serializer.js';
 
         document.addEventListener('DOMContentLoaded', async () => {
 
-            let viewerContentUrl = contentUrl;
+            let viewerContentUrl = null;
 
             if (projectName) {
 
@@ -167,9 +172,16 @@ import { Serializer } from './js/Serializer.js';
 
             }
 
-            window.sse.config = createSseConfig(viewerContentUrl);
+            const config = createSseConfig(viewerContentUrl);
 
-            await createViewer(window.sse.config);
+            if (!viewerContentUrl) {
+                delete config.contentUrl;
+                delete config.contents;
+            }
+
+            window.sse.config = config;
+
+            await createViewer(config);
         });
 
         </script>

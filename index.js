@@ -88752,13 +88752,23 @@ class Viewer {
         });
         // wait for the model to load
         Promise.all([gsplatLoad, skyboxLoad, collisionLoad]).then((results) => {
-            const gsplatComponent = results[0].gsplat;
+			const gsplatEntity = results[0];
+			const gsplatComponent = gsplatEntity?.gsplat ?? null;
             const collision = results[2];
             // get scene bounding box
-            const gsplatBbox = gsplatComponent.customAabb;
-            if (gsplatBbox) {
-                sceneBound.setFromTransformedAabb(gsplatBbox, results[0].getWorldTransform());
-            }
+			if (gsplatComponent && gsplatEntity) {
+
+				const gsplatBbox = gsplatComponent.customAabb;
+
+				if (gsplatBbox) {
+
+					sceneBound.setFromTransformedAabb(
+						gsplatBbox,
+						gsplatEntity.getWorldTransform()
+					);
+				}
+
+			}
             if (!config.noui) {
                 this.annotations = new Annotations(global, this.cameraFrame != null);
             }
@@ -88828,14 +88838,15 @@ class Viewer {
                 // reveal once full quality has finished loading (used for screenshots)
                 applyPerfSettings();
             }
-            else {
-                // reveal once low lod has loaded for fastest possible reveal
-                const resource = results[0].gsplat.resource;
-                const lodLevels = resource?.octree?.lodLevels;
-                if (lodLevels) {
-                    gsplat.lodRangeMax = gsplat.lodRangeMin = lodLevels - 1;
-                }
-            }
+			else if (results[0]?.gsplat) {
+				// reveal once low lod has loaded for fastest possible reveal
+				const resource = results[0].gsplat.resource;
+				const lodLevels = resource?.octree?.lodLevels;
+
+				if (lodLevels) {
+					gsplat.lodRangeMax = gsplat.lodRangeMin = lodLevels - 1;
+				}
+			}
             // these two allow LOD behind camera to drop, saves lots of splats
             gsplat.lodUpdateAngle = 90;
             gsplat.lodBehindPenalty = 5;
@@ -89918,6 +89929,11 @@ const initXr = (global) => {
 
 const loadGsplat = async (app, config, progressCallback) => {
     const { contents, contentUrl } = config;
+
+    if (!contentUrl || !contents) {
+        return null;
+    }
+
     const c = contents;
     const filename = new URL(contentUrl, location.href).pathname.split('/').pop();
     const data = filename.toLowerCase() === 'meta.json' ? await (await contents).json() : undefined;
@@ -90119,9 +90135,12 @@ const main = async (canvas, settingsJson, config) => {
     initLocalization();
     initUI(global);
     // Load model
-    const gsplatLoad = loadGsplat(app, config, (progress) => {
-        state.progress = progress;
-    });
+	const gsplatLoad =
+		config.contentUrl && config.contents
+			? loadGsplat(app, config, (progress) => {
+				state.progress = progress;
+			})
+			: Promise.resolve(null);
     // Load skybox (continue without if it fails — e.g. CORS, 404)
     const skyboxLoad = config.skyboxUrl &&
         loadSkybox(app, config.skyboxUrl).then((asset) => {
