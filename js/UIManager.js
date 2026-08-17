@@ -83,6 +83,15 @@ export class UIManager {
 
                         </label>
 
+                        <button
+                            id="lo-set-initial-view"
+                            class="lo-button"
+                            style="margin-top: 10px;">
+
+                            Set Initial View
+
+                        </button>
+
                         <div id="lo-color-controls">
 
                             <label for="lo-bg-picker">
@@ -172,6 +181,30 @@ export class UIManager {
 
                         </div>
 
+                        <div class="lo-section">
+
+                            <div class="lo-section-title">3DGS Model</div>
+
+                            <div class="lo-toolbar">
+
+                                <button
+                                    id="lo-upload-gsplat"
+                                    class="lo-button lo-toolbar-button"
+                                    title="Upload a .sog or .ply 3DGS file">
+                                    ⬆ Upload 3DGS
+                                </button>
+
+                                <button
+                                    id="lo-delete-gsplat"
+                                    class="lo-button lo-toolbar-button lo-button-danger"
+                                    title="Remove the current 3DGS model">
+                                    🗑 Delete 3DGS
+                                </button>
+
+                            </div>
+
+                        </div>
+
                         <button
                             id="lo-save-project"
                             class="lo-button">
@@ -219,6 +252,39 @@ export class UIManager {
             </div>
         `;
         this.refresh();
+
+        const uploadGsplatBtn = document.getElementById("lo-upload-gsplat");
+        if (uploadGsplatBtn) {
+            uploadGsplatBtn.onclick = () => {
+                const input = document.createElement("input");
+                input.type = "file";
+                input.accept = ".sog,.ply";
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    this.showToast("Loading 3DGS model...");
+                    try {
+                        await this.lo.loadGsplat(file, (p) => {
+                            if (p < 100) {
+                                this.showToast(`Loading 3DGS: ${p}%`);
+                            }
+                        });
+                        this.showToast("✓ 3DGS loaded successfully");
+                    } catch (err) {
+                        this.showToast("❌ Failed to load 3DGS model");
+                    }
+                };
+                input.click();
+            };
+        }
+
+        const deleteGsplatBtn = document.getElementById("lo-delete-gsplat");
+        if (deleteGsplatBtn) {
+            deleteGsplatBtn.onclick = () => {
+                this.lo.unloadGsplat();
+                this.showToast("3DGS model removed");
+            };
+        }
 
         const addButton = document.getElementById("lo-add-hotspot");
 
@@ -276,6 +342,16 @@ export class UIManager {
         const theme = document.getElementById("lo-theme");
 
         const autospin = document.getElementById("lo-autospin-on-load");
+
+        const setInitialViewBtn = document.getElementById("lo-set-initial-view");
+        if (setInitialViewBtn) {
+            setInitialViewBtn.onclick = () => {
+                if (this.lo.cameraManager) {
+                    this.lo.cameras["camera-0"] = this.lo.cameraManager.capture();
+                    this.lo.uiManager?.showToast("✓ Initial view set");
+                }
+            };
+        }
 
         document.getElementById("lo-save-project").onclick = () => {
 

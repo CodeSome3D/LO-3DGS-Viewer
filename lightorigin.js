@@ -63,7 +63,7 @@ window.lo = {
     cameras: {},
     hotspots: [],
     hotspotCounter: 0,
-    cameraCounter: 0,
+    cameraCounter: 1,
     lastPickedPoint: null,
     selectedHotspot: null,
     currentHotspotIndex: -1,
@@ -115,6 +115,10 @@ window.lo = {
 
         console.log("LightOrigin space initialized");
         
+        if (viewer?.global?.config?.contentUrl) {
+            this.projectcard.scene = viewer.global.config.contentUrl;
+        }
+
         this.viewer.global.app.on("postrender", () => {
             this.updateHotspots();
         });
@@ -165,6 +169,30 @@ window.lo = {
                     }
 
                     break;
+            }
+        });
+
+        window.addEventListener("dragover", (e) => {
+            e.preventDefault();
+        });
+
+        window.addEventListener("drop", async (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer?.files?.[0];
+            if (!file) return;
+            const name = file.name.toLowerCase();
+            if (name.endsWith(".sog") || name.endsWith(".ply")) {
+                this.uiManager?.showToast(`Loading ${file.name}...`);
+                try {
+                    await this.loadGsplat(file, (p) => {
+                        if (p < 100) this.uiManager?.showToast(`Loading 3DGS: ${p}%`);
+                    });
+                    this.uiManager?.showToast("✓ 3DGS loaded successfully");
+                } catch (err) {
+                    this.uiManager?.showToast("❌ Failed to load 3DGS model");
+                }
+            } else if (name.endsWith(".lo.json") || name.endsWith(".json")) {
+                this.loadProject(file);
             }
         });
     },
@@ -342,6 +370,32 @@ window.lo = {
         return this.projectManager.loadFromURL(url);
     },
 
+    loadGsplat(urlOrFile, progressCallback) {
+        if (!this.viewer?.loadGsplat) {
+            console.warn("Viewer is not initialized yet.");
+            return null;
+        }
+        if (typeof urlOrFile === 'string') {
+            this.projectcard.scene = urlOrFile;
+        } else if (urlOrFile instanceof File) {
+            this.projectcard.scene = urlOrFile.name;
+        }
+        return this.viewer.loadGsplat(urlOrFile, progressCallback);
+    },
+
+    unloadGsplat() {
+        if (!this.viewer?.unloadGsplat) {
+            return;
+        }
+        this.viewer.unloadGsplat();
+    },
+
+    frame(bbox = null, fov = null) {
+        if (this.viewer?.frame) {
+            this.viewer.frame(bbox, fov);
+        }
+    },
+
     nextHotspot() {
        return this.tourManager.next();
     },
@@ -482,16 +536,14 @@ window.lo = {
             root.style.setProperty("--lo-text", "#ffffff");
             root.style.setProperty("--lo-text-secondary", "#999");
             root.style.setProperty("--lo-accent", "#22C7B8");
-            this.projectcard.background.type = "color";
-            this.projectcard.background.color = "#0A1D24";
-
-            const picker = document.getElementById("lo-bg-picker");
-
-            if (picker) {
-                picker.value = this.projectcard.background.color;
+            if (this.projectcard.background.type === "color") {
+                this.projectcard.background.color = "#0A1D24";
+                const picker = document.getElementById("lo-bg-picker");
+                if (picker) {
+                    picker.value = this.projectcard.background.color;
+                }
+                this.applyBackground();
             }
-
-            this.applyBackground();
 
             const logo = document.querySelector("#lightorigin-logo img");
 
@@ -513,16 +565,14 @@ window.lo = {
             root.style.setProperty("--lo-text-secondary", "#666666");
             root.style.setProperty("--lo-accent", "#11998E");
 
-            this.projectcard.background.type = "color";
-            this.projectcard.background.color = "#F4F6F8";
-
-            const picker = document.getElementById("lo-bg-picker");
-
-            if (picker) {
-                picker.value = this.projectcard.background.color;
+            if (this.projectcard.background.type === "color") {
+                this.projectcard.background.color = "#F4F6F8";
+                const picker = document.getElementById("lo-bg-picker");
+                if (picker) {
+                    picker.value = this.projectcard.background.color;
+                }
+                this.applyBackground();
             }
-
-            this.applyBackground();
 
             const logo = document.querySelector("#lightorigin-logo img");
 
@@ -555,18 +605,25 @@ function init() {
         true
     );
 
-    if (window.lo.isEditor()) {
+    const params = new URLSearchParams(window.location.search);
+    const projectUrl = params.get("project");
 
+    if (window.lo.isEditor()) {
         window.lo.createUI();
+        if (projectUrl) {
+            window.lo.loadProjectFromURL(projectUrl).catch(err => {
+                console.warn("Editor project load warning:", err);
+            });
+        }
     }
 
     if (window.lo.isViewer()) {
+        const buttonsContainer = document.getElementById("buttonsContainer");
+        if (buttonsContainer) {
+            buttonsContainer.style.display = "none";
+        }
 
         window.lo.tourUIManager.create();
-
-        const params = new URLSearchParams(window.location.search);
-
-        const projectUrl = params.get("project");
 
         if (projectUrl) {
             window.lo
@@ -574,8 +631,44 @@ function init() {
                 .then(() => {
                     window.lo.setTheme(window.lo.projectcard.theme);
 
-                    if (!window.lo.projectcard.autospinOnLoad) {
-                        window.lo.tourManager.start();
+                    if (window.lo.projectcard.autospinOnLoad) {
+                        window.lo.cameraManager.startAutospin();
+                    }
+
+                    if (window.lo.cameras["camera-0"]) {
+                        const initialViewBtn = document.createElement("button");
+                        initialViewBtn.id = "lo-initial-view-btn";
+                        initialViewBtn.textContent = "Initial View";
+                        initialViewBtn.style.position = "absolute";
+                        initialViewBtn.style.bottom = "20px";
+                        initialViewBtn.style.left = "50%";
+                        initialViewBtn.style.transform = "translateX(-50%)";
+                        initialViewBtn.style.padding = "8px 24px";
+                        initialViewBtn.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+                        initialViewBtn.style.color = "white";
+                        initialViewBtn.style.border = "1px solid rgba(255, 255, 255, 0.2)";
+                        initialViewBtn.style.borderRadius = "20px";
+                        initialViewBtn.style.fontFamily = "sans-serif";
+                        initialViewBtn.style.fontSize = "14px";
+                        initialViewBtn.style.cursor = "pointer";
+                        initialViewBtn.style.zIndex = "1000";
+                        initialViewBtn.style.backdropFilter = "blur(4px)";
+                        initialViewBtn.style.transition = "background-color 0.2s";
+                        
+                        initialViewBtn.onmouseenter = () => {
+                            initialViewBtn.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+                        };
+                        initialViewBtn.onmouseleave = () => {
+                            initialViewBtn.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+                        };
+                        
+                        initialViewBtn.onclick = () => {
+                            window.lo.cameraManager.goTo("camera-0");
+                            window.lo.tourManager.currentHotspotIndex = -1;
+                            window.lo.tourUIManager?.update(null); // Hide tour UI
+                        };
+                        
+                        document.body.appendChild(initialViewBtn);
                     }
                 })
                 .catch(error => {
@@ -585,8 +678,8 @@ function init() {
                     );
                 });
         } else {
-            if (!window.lo.projectcard.autospinOnLoad) {
-                window.lo.tourManager.start();
+            if (window.lo.projectcard.autospinOnLoad) {
+                window.lo.cameraManager.startAutospin();
             }
         }
 

@@ -63,6 +63,7 @@ export class BackgroundManager {
 
         this.lo.getPCCamera().clearColor.set(0,0,0,0);
 
+        this.lo.viewer?.wake?.(3);
         this.lo.viewer.global.app.renderNextFrame = true;
     }
 
@@ -95,6 +96,7 @@ export class BackgroundManager {
             1
         );
 
+        this.lo.viewer?.wake?.(3);
         this.lo.viewer.global.app.renderNextFrame = true;
     }
 
@@ -134,6 +136,7 @@ export class BackgroundManager {
 
         this.lo.getPCCamera().clearColor.set(0,0,0,0);
 
+        this.lo.viewer?.wake?.(3);
         app.renderNextFrame = true;
     }
 
@@ -170,6 +173,7 @@ export class BackgroundManager {
 
         this.lo.getPCCamera().clearColor.set(0,0,0,0);
 
+        this.lo.viewer?.wake?.(3);
         app.renderNextFrame = true;
     }
 
@@ -185,5 +189,6 @@ export class BackgroundManager {
         }
 
         this.lo.viewer.setSkyboxRotation(panorama.rotation);
+        this.lo.viewer?.wake?.(3);
     }
 }

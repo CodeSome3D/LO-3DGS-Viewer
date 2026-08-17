@@ -6,6 +6,21 @@ export class ProjectManager {
 
     export() {
 
+        // Auto-detect current active scene/model if not set or placeholder
+        if (!this.lo.projectcard.scene ||
+            this.lo.projectcard.scene === "./scene.sog" ||
+            this.lo.projectcard.scene === "scene.sog") {
+            const gsplatAsset = this.lo.viewer?.global?.app?.assets?.find(a => a.type === 'gsplat');
+            if (gsplatAsset) {
+                const assetUrl = gsplatAsset.file?.url || gsplatAsset.name;
+                if (assetUrl && !assetUrl.startsWith('blob:')) {
+                    this.lo.projectcard.scene = assetUrl;
+                } else if (gsplatAsset.name && !gsplatAsset.name.startsWith('blob:')) {
+                    this.lo.projectcard.scene = gsplatAsset.name;
+                }
+            }
+        }
+
         const hotspots =
             this.lo.hotspots.map(hotspot => ({
 
@@ -36,7 +51,7 @@ export class ProjectManager {
         });
     }
 
-    import(json) {
+    async import(json, sourceContext = null) {
 
         const project =
             this.lo.serializer.import(json);
@@ -147,14 +162,150 @@ export class ProjectManager {
         }
 
         this.lo.cameras = project.cameras ?? {};
-
         this.lo.hotspots = project.hotspots ?? [];
+
+        // Migrate any hotspot that uses "camera-0" to a new ID, to reserve "camera-0" strictly for initial view
+        const hasCamera0Hotspot = this.lo.hotspots.some(h => h.cameraId === "camera-0");
+        if (hasCamera0Hotspot) {
+            let newId = 1;
+            while (this.lo.cameras[`camera-${newId}`]) {
+                newId++;
+            }
+            const newCamId = `camera-${newId}`;
+            this.lo.cameras[newCamId] = JSON.parse(JSON.stringify(this.lo.cameras["camera-0"]));
+            
+            for (const hotspot of this.lo.hotspots) {
+                if (hotspot.cameraId === "camera-0") {
+                    hotspot.cameraId = newCamId;
+                }
+            }
+        }
+
+        // Update camera counter to avoid overwriting existing cameras
+        let maxIndex = 0;
+        for (const key of Object.keys(this.lo.cameras)) {
+            if (key.startsWith("camera-")) {
+                const idx = parseInt(key.replace("camera-", ""), 10);
+                if (!isNaN(idx) && idx > maxIndex) {
+                    maxIndex = idx;
+                }
+            }
+        }
+        this.lo.cameraCounter = Math.max(1, maxIndex + 1);
 
         this.lo.selectedHotspot = null;
 
         this.applyBackground();
 
         this.lo.renderHotspots();
+
+        // Determine candidates for 3DGS model loading
+        const candidates = [];
+
+        // 1. From sourceContext if string or File
+        let fileId = null;
+        if (typeof sourceContext === "string" && !sourceContext.startsWith("blob:") && !sourceContext.startsWith("data:")) {
+            const clean = sourceContext.replace(/\\/g, '/');
+            const lastPart = clean.split('/').pop();
+            fileId = lastPart.replace(/\.lo\.json$|\.json$/, '');
+        } else if (sourceContext && typeof sourceContext === "object" && sourceContext.name) {
+            const lastPart = sourceContext.name.replace(/\\/g, '/').split('/').pop();
+            fileId = lastPart.replace(/\.lo\.json$|\.json$/, '');
+        }
+
+        if (fileId) {
+            candidates.push(`./projects/${fileId}/${fileId}.sog`);
+            candidates.push(`./projects/${fileId}/scene.sog`);
+            candidates.push(`./${fileId}.sog`);
+        }
+
+        // 2. From projectcard.scene
+        const scenePath = this.lo.projectcard.scene;
+        if (scenePath && typeof scenePath === "string" && !scenePath.startsWith("blob:")) {
+            if (scenePath !== "./scene.sog" && scenePath !== "scene.sog") {
+                candidates.unshift(scenePath);
+                const sceneClean = scenePath.replace(/\\/g, '/').split('/').pop();
+                const sceneId = sceneClean.replace(/\.sog$|\.ply$/, '');
+                if (sceneId && sceneId !== fileId) {
+                    candidates.push(`./projects/${sceneId}/${sceneId}.sog`);
+                    candidates.push(`./${sceneClean}`);
+                }
+            } else {
+                candidates.push("./scene.sog");
+            }
+        }
+
+        // 3. Known project aliases (e.g. Three Figures In Museum / museum -> 00_3_figures)
+        const projName = (this.lo.projectcard.name || "").toLowerCase();
+        const fileIdLower = (fileId || "").toLowerCase();
+        if (projName.includes("three") || projName.includes("museum") || fileIdLower.includes("museum") || fileIdLower.includes("three")) {
+            candidates.push("./projects/00_3_figures/00_3_figures.sog");
+            candidates.push("./index_0.sog");
+            candidates.push("./index_1.sog");
+        }
+        if (projName.includes("cactus") || projName.includes("kaktus") || fileIdLower.includes("cactus") || fileIdLower.includes("kaktus")) {
+            candidates.push("./projects/01_cactus/01_cactus.sog");
+            candidates.push("./projects/02_kaktus/02_kaktus.sog");
+        }
+
+        // Deduplicate candidates
+        const uniqueCandidates = Array.from(new Set(candidates.filter(Boolean)));
+
+        // Check if an existing 3DGS model was already present in the scene
+        const existingEntities = this.lo.viewer?.global?.app?.root?.find((node) => node.name === 'gsplat') || [];
+        const hasExistingModel = existingEntities.length > 0;
+        const currentUrl = this.lo.viewer?.global?.config?.contentUrl;
+
+        let loadedSplat = false;
+
+        if (hasExistingModel && currentUrl) {
+            const normalizedCurrent = currentUrl.replace(/^\.\//, '');
+            if (uniqueCandidates.some(c => c.replace(/^\.\//, '') === normalizedCurrent || currentUrl.endsWith(c.replace(/^\.\//, '')))) {
+                console.log(`[ProjectManager] Skipping load, model already active: ${currentUrl}`);
+                loadedSplat = true;
+            }
+        }
+
+        if (!loadedSplat) {
+            for (const candidate of uniqueCandidates) {
+                try {
+                    console.log(`[ProjectManager] Trying splat candidate: ${candidate}`);
+                    const res = await this.lo.loadGsplat(candidate);
+                    if (res) {
+                        loadedSplat = true;
+                        if (this.lo.isEditor()) {
+                            this.lo.uiManager?.showToast("✓ 3DGS loaded successfully");
+                        }
+                        break;
+                    }
+                } catch (e) {
+                    console.warn(`[ProjectManager] Splat candidate not found: ${candidate}`);
+                }
+            }
+        }
+
+        if (!loadedSplat && !hasExistingModel) {
+            if (this.lo.isEditor()) {
+                this.lo.uiManager?.showToast("⚠️ Project loaded. Use 'Upload 3DGS' to attach model.");
+            }
+        } else if (!loadedSplat && hasExistingModel) {
+            if (this.lo.isEditor()) {
+                this.lo.uiManager?.showToast("✓ Project hotspots and cameras loaded");
+            }
+        }
+
+        const cameraKeys = Object.keys(this.lo.cameras);
+        if (cameraKeys.length > 0) {
+            const firstCamKey = cameraKeys.includes("camera-0") ? "camera-0" : cameraKeys[0];
+            this.lo.cameraManager?.goTo(firstCamKey, true);
+        } else {
+            this.lo.cameraManager?.frame();
+        }
+
+        this.lo.viewer?.wake?.(5);
+        if (this.lo.viewer?.global?.app) {
+            this.lo.viewer.global.app.renderNextFrame = true;
+        }
 
         if (this.lo.isEditor()) {
 
@@ -197,19 +348,20 @@ export class ProjectManager {
 
         reader.onload = () =>
 
-            this.import(reader.result);
+            this.import(reader.result, file);
 
         reader.readAsText(file);
     }
 
     async loadFromURL(url) {
 
-        if (!url.includes('/') && !url.endsWith('.json')) {
-            url = `./projects/${url}/${url}.json`;
+        let fetchUrl = url;
+        if (!fetchUrl.includes('/') && !fetchUrl.endsWith('.json')) {
+            fetchUrl = `./projects/${url}/${url}.json`;
         }
 
         const response =
-            await fetch(url);
+            await fetch(fetchUrl);
 
         if (!response.ok) {
 
@@ -221,7 +373,7 @@ export class ProjectManager {
         const json =
             await response.text();
 
-        this.import(json);
+        await this.import(json, url);
     }
 
     setName(name) {

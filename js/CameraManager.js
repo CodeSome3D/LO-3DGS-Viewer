@@ -32,12 +32,13 @@ export class CameraManager {
         });
     }
 
-    apply(camera) {
+    apply(camera, instant = false) {
 
         if (!camera) {
             return;
         }
 
+        this.stopAutospin();
         this.forceOrbit();
 
         const controller = this.getOrbitController();
@@ -63,6 +64,26 @@ export class CameraManager {
         controller._targetChildPose.position.z = camera.distance;
 
         orbit.fov = camera.fov;
+
+        if (instant) {
+            controller._rootPose.position.copy(controller._targetRootPose.position);
+            controller._rootPose.angles.copy(controller._targetRootPose.angles);
+            controller._childPose.position.copy(controller._targetChildPose.position);
+            this.lo.viewer?.wake?.(4);
+        } else {
+            // wake for at least 120 frames for a smooth transition
+            this.lo.viewer?.wake?.(120);
+            
+            // clear previous interval if any
+            if (this._wakeInterval) clearInterval(this._wakeInterval);
+            this._wakeInterval = setInterval(() => {
+                this.lo.viewer?.wake?.(2);
+                const dPos = controller._rootPose.position.distance(controller._targetRootPose.position);
+                if (dPos < 0.001) {
+                    clearInterval(this._wakeInterval);
+                }
+            }, 33);
+        }
     }
 
     save(name) {
@@ -74,9 +95,9 @@ export class CameraManager {
         );
     }
 
-    goTo(name) {
+    goTo(name, instant = false) {
 
-        this.apply(this.lo.cameras[name]);
+        this.apply(this.lo.cameras[name], instant);
     }
 
     updateSelected() {
@@ -148,6 +169,12 @@ export class CameraManager {
         this.lo.viewer.global.state.cameraMode = "orbit";
     }
 
+    frame(bbox = null, fov = null) {
+        if (this.lo.viewer?.frame) {
+            this.lo.viewer.frame(bbox, fov);
+        }
+    }
+
     setDamping(move, rotate = move, zoom = move) {
 
         const controller = this.getOrbitController();
@@ -170,4 +197,48 @@ export class CameraManager {
         return orbit.controller;
     }
 
+    startAutospin(speed = 10) {
+        this.stopAutospin();
+        this._autospinActive = true;
+        
+        let lastTime = performance.now();
+        const spinLoop = (time) => {
+            if (!this._autospinActive) return;
+            
+            const dt = time - lastTime;
+            lastTime = time;
+            
+            if (dt < 100) {
+                try {
+                    const controller = this.getOrbitController();
+                    if (controller) {
+                        controller._targetRootPose.angles.y += speed * (dt / 1000);
+                        this.lo.viewer?.wake?.(2);
+                    }
+                } catch (e) {
+                    // Ignore if orbit controller is not active yet
+                }
+            }
+            
+            this._autospinFrame = requestAnimationFrame(spinLoop);
+        };
+        this._autospinFrame = requestAnimationFrame(spinLoop);
+
+        // Stop on interaction
+        const stopOnInteract = () => {
+            this.stopAutospin();
+            window.removeEventListener('mousedown', stopOnInteract);
+            window.removeEventListener('touchstart', stopOnInteract);
+        };
+        window.addEventListener('mousedown', stopOnInteract);
+        window.addEventListener('touchstart', stopOnInteract);
+    }
+
+    stopAutospin() {
+        this._autospinActive = false;
+        if (this._autospinFrame) {
+            cancelAnimationFrame(this._autospinFrame);
+            this._autospinFrame = null;
+        }
+    }
 }

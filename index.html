@@ -88,22 +88,40 @@ import { Serializer } from './js/Serializer.js';
         }
 
         async function loadProject(projectName) {
-
             if (!projectName) {
                 return null;
             }
 
-            const projectUrl = `./projects/${projectName}/${projectName}.json`;
-
-            const response = await fetch(projectUrl);
-
-            if (!response.ok) {
-                throw new Error(`Failed to load project: ${projectUrl}`);
+            const serializer = new Serializer();
+            const candidates = [
+                `./projects/${projectName}/${projectName}.json`,
+                `./projects/${projectName}/${projectName}.lo.json`,
+                `./projects/${projectName}/scene.json`,
+                `./${projectName}.lo.json`,
+                `./${projectName}.json`
+            ];
+            const pLower = projectName.toLowerCase();
+            if (pLower.includes("museum") || pLower.includes("three")) {
+                candidates.push(`./projects/00_3_figures/00_3_figures.json`);
+                candidates.push(`./Three_Figures_In_Museum.lo.json`);
+                candidates.push(`./museum.lo.json`);
+            }
+            if (pLower.includes("cactus") || pLower.includes("kaktus")) {
+                candidates.push(`./projects/01_cactus/01_cactus.json`);
+                candidates.push(`./projects/02_kaktus/02_kaktus.json`);
             }
 
-            const serializer = new Serializer();
-
-            return serializer.import(await response.text());
+            for (const pUrl of candidates) {
+                try {
+                    const response = await fetch(pUrl);
+                    if (response.ok) {
+                        return serializer.import(await response.text());
+                    }
+                } catch (e) {
+                    // Try next
+                }
+            }
+            return null;
         }
 
         function getProjectValue(key, fallback) {
@@ -162,22 +180,37 @@ import { Serializer } from './js/Serializer.js';
 
         document.addEventListener('DOMContentLoaded', async () => {
 
-            let viewerContentUrl = null;
+            let viewerContentUrl =
+                url.searchParams.get('scene') ??
+                url.searchParams.get('content') ??
+                null;
 
             if (projectName) {
+                try {
+                    window.project = await loadProject(projectName);
+                } catch (err) {
+                    console.warn("Could not load project metadata:", err);
+                }
 
-                window.project = await loadProject(projectName);
+                if (!viewerContentUrl) {
+                    const sceneFromProj = getProjectValue("scene", null);
+                    if (sceneFromProj && sceneFromProj !== "./scene.sog" && sceneFromProj !== "scene.sog") {
+                        if (!sceneFromProj.includes('/')) {
+                            viewerContentUrl = `./projects/${projectName}/${sceneFromProj}`;
+                        } else {
+                            viewerContentUrl = sceneFromProj;
+                        }
+                    } else {
+                        viewerContentUrl = `./projects/${projectName}/${projectName}.sog`;
+                    }
+                }
+            }
 
-                viewerContentUrl = `./projects/${projectName}/${projectName}.sog`;
-
+            if (!viewerContentUrl && isViewer) {
+                viewerContentUrl = "./index_0.sog";
             }
 
             const config = createSseConfig(viewerContentUrl);
-
-            if (!viewerContentUrl) {
-                delete config.contentUrl;
-                delete config.contents;
-            }
 
             window.sse.config = config;
 

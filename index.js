@@ -69973,10 +69973,11 @@ class GSplatHandler extends ResourceHandler {
 		};
 	}
 	_getUrlWithoutParams(url) {
-		return url.indexOf("?") >= 0 ? url.split("?")[0] : url;
+		return url && url.indexOf("?") >= 0 ? url.split("?")[0] : (url || "");
 	}
-	_getParser(url) {
-		const basename = path.getBasename(this._getUrlWithoutParams(url)).toLowerCase();
+	_getParser(url, asset) {
+		const target = asset?.file?.filename || asset?.name || (typeof url === "string" ? url : url?.original || url?.load || "");
+		const basename = path.getBasename(this._getUrlWithoutParams(target)).toLowerCase();
 		if (basename === "lod-meta.json") {
 			return this.parsers.octree;
 		}
@@ -69990,7 +69991,7 @@ class GSplatHandler extends ResourceHandler {
 				original: url
 			};
 		}
-		this._getParser(url.original).load(url, callback, asset);
+		this._getParser(url.original, asset).load(url, callback, asset);
 	}
 	open(url, data, asset) {
 		return data;
@@ -84897,6 +84898,16 @@ class CameraManager {
             transitionTimer = 1;
             global.app.renderNextFrame = true;
         };
+        this.frame = (customBbox, fov) => {
+            const b = customBbox ?? bbox;
+            const f = fov ?? defaultFov;
+            const fCam = createFrameCamera(b, f);
+            events.fire('orbitTarget:clear');
+            state.cameraMode = 'orbit';
+            controllers.orbit.goto(fCam);
+            this.snap();
+            global.app.renderNextFrame = true;
+        };
         // application update
         this.update = (deltaTime, frame) => {
             // use dt of 0 if animation is paused
@@ -88623,6 +88634,7 @@ class Viewer {
     navCursor = null;
     debugPanel = null;
     origChunks;
+    sceneBound = null;
     constructor(global, gsplatLoad, skyboxLoad, collisionLoad) {
         this.global = global;
         const { app, settings, config, events, state, camera, renderer } = global;
@@ -88675,6 +88687,7 @@ class Viewer {
         const prevProj = new Mat4();
         const prevWorld = new Mat4();
         const sceneBound = new BoundingBox();
+        this.sceneBound = sceneBound;
         // track the camera state and trigger a render when it changes
         app.on('framerender', () => {
             const world = camera.getWorldTransform();
@@ -88688,7 +88701,7 @@ class Viewer {
             }
             // suppress rendering till we're ready
             if (!state.readyToRender) {
-                app.renderNextFrame = false;
+                state.readyToRender = true;
             }
             if (this.forceRenderNextFrame) {
                 app.renderNextFrame = true;
@@ -88704,13 +88717,22 @@ class Viewer {
             cameraEntity.setEulerAngles(camera.angles);
             cameraEntity.camera.fov = camera.fov;
             cameraEntity.camera.horizontalFov = graphicsDevice.width > graphicsDevice.height;
-            // fit clipping planes to bounding box
+
+            if (sceneBound.halfExtents.length() <= 0.001) {
+                const gsplatEnt = app.root.findByName('gsplat');
+                const gsplatComp = gsplatEnt?.gsplat;
+                const aabb = gsplatComp?.customAabb ?? gsplatComp?.resource?.aabb;
+                if (aabb && gsplatEnt) {
+                    sceneBound.setFromTransformedAabb(aabb, gsplatEnt.getWorldTransform());
+                }
+            }
+
+            // fit clipping planes safely to bounding box
             const boundRadius = sceneBound.halfExtents.length();
-            // calculate the forward distance between the camera to the bound center
             vec.sub2(sceneBound.center, camera.position);
             const dist = vec.dot(cameraEntity.forward);
-            const far = Math.max(dist + boundRadius, 1e-2);
-            const near = Math.max(dist - boundRadius, far / (1024 * 16));
+            const far = Math.max(dist + boundRadius * 2, boundRadius * 4, 1000);
+            const near = Math.max(0.01, Math.min(0.1, far / (1024 * 16)));
             cameraEntity.camera.farClip = far;
             cameraEntity.camera.nearClip = near;
         };
@@ -88852,22 +88874,45 @@ class Viewer {
             gsplat.lodBehindPenalty = 5;
             // same performance, but rotating on slow devices does not give us unsorted splats on sides
             gsplat.radialSorting = true;
+            this.applyPerfSettings = applyPerfSettings;
+            if (!results[0]) {
+                state.readyToRender = true;
+                events.on('performanceMode:changed', applyPerfSettings);
+                applyPerfSettings();
+                const { gsplat } = app.scene;
+                gsplat.debug = config.colorize ? GSPLAT_DEBUG_LOD : GSPLAT_DEBUG_NONE;
+                gsplat.renderer = rendererTable[renderer];
+            }
             const eventHandler = app.systems.gsplat;
-            // idle timer: force continuous rendering until 4s of inactivity
+            // idle timer: force continuous rendering until inactivity
             let idleTime = 0;
+            let wakeDuration = 4;
             this.forceRenderNextFrame = true;
+            this.wake = (duration = 4) => {
+                idleTime = 0;
+                wakeDuration = Math.max(wakeDuration, duration);
+                this.forceRenderNextFrame = true;
+                app.renderNextFrame = true;
+            };
             app.on('update', (dt) => {
                 idleTime += dt;
-                this.forceRenderNextFrame = idleTime < 4;
+                this.forceRenderNextFrame = idleTime < wakeDuration;
+                if (this.forceRenderNextFrame) {
+                    app.renderNextFrame = true;
+                }
             });
             events.on('inputEvent', (type) => {
                 if (type !== 'interact') {
                     idleTime = 0;
+                    this.forceRenderNextFrame = true;
+                    app.renderNextFrame = true;
                 }
             });
             eventHandler.on('frame:ready', (_camera, _layer, ready, loading) => {
                 if (loading > 0 || !ready) {
                     idleTime = 0;
+                    this.forceRenderNextFrame = true;
+                    app.renderNextFrame = true;
                 }
             });
             let current = 0;
@@ -89935,7 +89980,7 @@ const loadGsplat = async (app, config, progressCallback) => {
     }
 
     const c = contents;
-    const filename = new URL(contentUrl, location.href).pathname.split('/').pop();
+    const filename = config.filename || new URL(contentUrl, location.href).pathname.split('/').pop();
     const data = filename.toLowerCase() === 'meta.json' ? await (await contents).json() : undefined;
     const asset = new Asset(filename, 'gsplat', { url: contentUrl, filename, contents: c }, data);
     return new Promise((resolve, reject) => {
@@ -90205,6 +90250,8 @@ const main = async (canvas, settingsJson, config) => {
 		const asset = await loadSkybox(app, url);
 
 		app.scene.envAtlas = asset.resource;
+		viewer.wake?.(3);
+		app.renderNextFrame = true;
 	};
 
 	viewer.setSkyboxRotation = (degrees) => {
@@ -90214,9 +90261,116 @@ const main = async (canvas, settingsJson, config) => {
 		q.setFromEulerAngles(0, degrees, 0);
 
 		app.scene.skyboxRotation = q;
-
+		viewer.wake?.(3);
 		app.renderNextFrame = true;
 
+	};
+
+	viewer.unloadGsplat = () => {
+		const existingEntities = app.root.find((node) => node.name === 'gsplat');
+		for (const ent of existingEntities) {
+			ent.destroy();
+		}
+		const gsplatAssets = app.assets.filter((a) => a.type === 'gsplat');
+		for (const asset of gsplatAssets) {
+			asset.unload();
+			app.assets.remove(asset);
+		}
+		viewer.wake?.(3);
+		app.renderNextFrame = true;
+	};
+
+	viewer.frame = (customBbox, fov) => {
+		if (viewer.cameraManager) {
+			viewer.cameraManager.frame(customBbox ?? viewer.sceneBound, fov);
+		}
+		viewer.wake?.(3);
+	};
+
+	viewer.loadGsplat = async (urlOrFile, progressCallback) => {
+		if (!urlOrFile) {
+			return null;
+		}
+
+		let contentUrl;
+		let contents;
+		let filename;
+
+		if (typeof urlOrFile === 'string') {
+			contentUrl = urlOrFile;
+			contents = fetch(contentUrl);
+			filename = new URL(contentUrl, location.href).pathname.split('/').pop();
+		} else if (urlOrFile instanceof File || urlOrFile instanceof Blob) {
+			filename = urlOrFile.name || 'model.sog';
+			contentUrl = URL.createObjectURL(urlOrFile);
+			contents = fetch(contentUrl);
+		} else {
+			console.warn('Unknown type passed to loadGsplat:', urlOrFile);
+			return null;
+		}
+
+		const gsplatConfig = {
+			contentUrl,
+			contents,
+			filename
+		};
+
+		try {
+			const oldEntities = app.root.find((node) => node.name === 'gsplat');
+			const oldAssets = app.assets.filter((a) => a.type === 'gsplat');
+
+			const gsplatEntity = await loadGsplat(app, gsplatConfig, (progress) => {
+				state.progress = progress;
+				if (progressCallback) {
+					progressCallback(progress);
+				}
+			});
+
+			for (const ent of oldEntities) {
+				ent.destroy();
+			}
+			for (const asset of oldAssets) {
+				asset.unload();
+				app.assets.remove(asset);
+			}
+
+			if (gsplatEntity) {
+				const gsplatComponent = gsplatEntity.gsplat ?? null;
+				if (gsplatComponent) {
+					const gsplatBbox = gsplatComponent.customAabb;
+					if (gsplatBbox && viewer.sceneBound) {
+						viewer.sceneBound.setFromTransformedAabb(
+							gsplatBbox,
+							gsplatEntity.getWorldTransform()
+						);
+					}
+					const resource = gsplatComponent.resource;
+					const lodLevels = resource?.octree?.lodLevels;
+					if (lodLevels) {
+						app.scene.gsplat.lodRangeMax = app.scene.gsplat.lodRangeMin = lodLevels - 1;
+					}
+				}
+
+				if (viewer.applyPerfSettings) {
+					viewer.applyPerfSettings();
+				}
+
+				if (viewer.frame) {
+					viewer.frame();
+				}
+			}
+
+			state.readyToRender = true;
+			state.loaded = true;
+			viewer.wake?.(5);
+			app.renderNextFrame = true;
+			return gsplatEntity;
+		} catch (err) {
+			console.error('Failed to load gsplat model:', err);
+			viewer.wake?.(3);
+			app.renderNextFrame = true;
+			throw err;
+		}
 	};
 
 	return viewer;	

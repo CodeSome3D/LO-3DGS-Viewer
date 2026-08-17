@@ -1,0 +1,126 @@
+{
+  "project": {
+    "name": "Kaktus",
+    "version": 1,
+    "theme": "dark",
+    "autospinOnLoad": true,
+    "background": {
+      "type": "panorama",
+      "color": "#0A1D24",
+      "gradient": {
+        "mode": "linear",
+        "angle": 0,
+        "colors": [
+          "#212421",
+          "#a85e32"
+        ]
+      },
+      "image": {
+        "url": "",
+        "fit": "cover"
+      },
+      "panorama": {
+        "url": "assets/greenhouse.jpg",
+        "rotation": 0,
+        "file": {}
+      }
+    },
+    "scene": "./projects/02_kaktus/02_kaktus.sog"
+  },
+  "cameras": {
+    "camera-0": {
+      "position": {
+        "x": -0.8893012521645127,
+        "y": 0.8439095763172714,
+        "z": 0.21321981767816145
+      },
+      "angles": {
+        "x": -84.4499999999999,
+        "y": 86.51240095591159,
+        "z": 0
+      },
+      "distance": 7.715608489120493,
+      "fov": 75
+    },
+    "camera-1": {
+      "position": {
+        "x": 0.46315460319520657,
+        "y": 0.6452334361177392,
+        "z": 0.24725825661182546
+      },
+      "angles": {
+        "x": -1.4781022041744374,
+        "y": 117.0149827590115,
+        "z": 0
+      },
+      "distance": 2.516067498521163,
+      "fov": 75
+    },
+    "camera-2": {
+      "position": {
+        "x": -0.5720015867096575,
+        "y": -0.20396663279790103,
+        "z": -0.08010295270125668
+      },
+      "angles": {
+        "x": -13.015282686791386,
+        "y": -68.06043262773363,
+        "z": 0
+      },
+      "distance": 2.3884783515663934,
+      "fov": 75
+    },
+    "camera-3": {
+      "position": {
+        "x": -0.5580783053492011,
+        "y": 1.157604117442892,
+        "z": -0.12226268044336652
+      },
+      "angles": {
+        "x": -19.799999999999915,
+        "y": 55.01240095591172,
+        "z": 0
+      },
+      "distance": 2.4212396991679666,
+      "fov": 75
+    }
+  },
+  "hotspots": [
+    {
+      "id": "1786951739808",
+      "title": "Kaktus",
+      "description": "Kaktusowate (Cactaceae Juss., zwyczajowo nazywane kaktusami) – rodzina sukulentów łodygowych (wieloletnich, zielnych lub częściowo zdrewniałych), należąca do rzędu goździkowców. Należy do niej, w zależności od systemu klasyfikacyjnego, od 24 do 220 rodzajów, a w ich ramach od 1500 do 2000 gatunków. Występują głównie na kontynentach amerykańskich, skąd pochodzą.",
+      "color": "#95c332",
+      "position": {
+        "x": 0.004538737738446843,
+        "y": 1.6862863837277287,
+        "z": 0.3321327625897464
+      },
+      "cameraId": "camera-3"
+    },
+    {
+      "id": "1786951819873",
+      "title": "Doniczka",
+      "description": "Doniczka Ceramiczna Tuscan Terakota 13x12 cm",
+      "color": "#ff7a00",
+      "position": {
+        "x": 0.46074024870400987,
+        "y": 0.7122801792368062,
+        "z": -0.027163900782484252
+      },
+      "cameraId": "camera-1"
+    },
+    {
+      "id": "1786951891763",
+      "title": "MarkerBox",
+      "description": "Stojak do fotografowania z markerami",
+      "color": "#494b4c",
+      "position": {
+        "x": -0.6109024486268928,
+        "y": -0.19371296124133672,
+        "z": -0.17188535839055027
+      },
+      "cameraId": "camera-2"
+    }
+  ]
+}
