@@ -1,3 +1,5 @@
+import { MediaHelper } from "./MediaHelper.js";
+
 export class TourUIManager {
 
     constructor(lo) {
@@ -15,6 +17,11 @@ export class TourUIManager {
 
         card.id = "lo-tour-card";
 
+        const mediaContainer =
+            document.createElement("div");
+
+        mediaContainer.id = "lo-tour-media-container";
+
         const title =
             document.createElement("div");
 
@@ -24,6 +31,21 @@ export class TourUIManager {
             document.createElement("div");
 
         description.id = "lo-tour-description";
+
+        const ctaContainer =
+            document.createElement("div");
+
+        ctaContainer.id = "lo-tour-cta-container";
+
+        const ctaButton =
+            document.createElement("a");
+
+        ctaButton.id = "lo-tour-cta";
+        ctaButton.className = "lo-tour-cta-button";
+        ctaButton.target = "_blank";
+        ctaButton.rel = "noopener noreferrer";
+
+        ctaContainer.appendChild(ctaButton);
 
         const controls =
             document.createElement("div");
@@ -80,8 +102,10 @@ export class TourUIManager {
         progressContainer.appendChild(progressBar);
 
         card.append(
+            mediaContainer,
             title,
             description,
+            ctaContainer,
             controls,
             progressContainer
         );
@@ -148,18 +172,23 @@ export class TourUIManager {
         const card =
             document.getElementById("lo-tour-card");
 
+        const mediaContainer =
+            document.getElementById("lo-tour-media-container");
+
         const title =
             document.getElementById("lo-tour-title");
 
         const description =
-            document.getElementById(
-                "lo-tour-description"
-            );
+            document.getElementById("lo-tour-description");
+
+        const ctaContainer =
+            document.getElementById("lo-tour-cta-container");
+
+        const ctaButton =
+            document.getElementById("lo-tour-cta");
 
         const counter =
-            document.getElementById(
-                "lo-tour-counter"
-            );
+            document.getElementById("lo-tour-counter");
 
         if (
             !card ||
@@ -193,18 +222,38 @@ export class TourUIManager {
             title.textContent =
                 hotspot.title || "";
 
-            description.textContent =
-                hotspot.description || "";
-
             title.style.display =
                 hotspot.title?.trim()
                     ? ""
                     : "none";
 
-            description.style.display =
-                hotspot.description?.trim()
-                    ? ""
-                    : "none";
+            if (hotspot.description?.trim()) {
+                description.innerHTML =
+                    MediaHelper.parseMarkdown(hotspot.description);
+                description.style.display = "";
+            } else {
+                description.innerHTML = "";
+                description.style.display = "none";
+            }
+
+            const mediaHtml =
+                MediaHelper.getMediaEmbedHTML(hotspot.mediaType, hotspot.mediaUrl);
+
+            if (mediaContainer) {
+                mediaContainer.innerHTML = mediaHtml;
+                mediaContainer.classList.toggle("has-media", Boolean(mediaHtml));
+            }
+
+            if (ctaContainer && ctaButton) {
+                const hasCta = Boolean(hotspot.actionButton?.label?.trim() && hotspot.actionButton?.url?.trim());
+                if (hasCta) {
+                    ctaButton.textContent = hotspot.actionButton.label.trim();
+                    ctaButton.href = hotspot.actionButton.url.trim();
+                    ctaContainer.classList.add("visible");
+                } else {
+                    ctaContainer.classList.remove("visible");
+                }
+            }
 
             card.classList.add("visible");
 

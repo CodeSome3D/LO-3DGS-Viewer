@@ -191,26 +191,13 @@ import { Serializer } from './js/Serializer.js';
                 } catch (err) {
                     console.warn("Could not load project metadata:", err);
                 }
-
-                if (!viewerContentUrl) {
-                    const sceneFromProj = getProjectValue("scene", null);
-                    if (sceneFromProj && sceneFromProj !== "./scene.sog" && sceneFromProj !== "scene.sog") {
-                        if (!sceneFromProj.includes('/')) {
-                            viewerContentUrl = `./projects/${projectName}/${sceneFromProj}`;
-                        } else {
-                            viewerContentUrl = sceneFromProj;
-                        }
-                    } else {
-                        viewerContentUrl = `./projects/${projectName}/${projectName}.sog`;
-                    }
-                }
-            }
-
-            if (!viewerContentUrl && isViewer) {
+                // LightOrigin will load the project's splat in lightorigin.js
+                viewerContentUrl = "";
+            } else if (!viewerContentUrl && isViewer) {
                 viewerContentUrl = "./index_0.sog";
             }
 
-            const config = createSseConfig(viewerContentUrl);
+            const config = createSseConfig(viewerContentUrl || "");
 
             window.sse.config = config;
 

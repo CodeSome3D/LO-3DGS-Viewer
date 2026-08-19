@@ -37,6 +37,12 @@ export class ProjectManager {
                 icon: hotspot.icon || (hotspot.type === "portal" ? "portal" : "default"),
 
                 customSvg: hotspot.customSvg || "",
+
+                mediaType: hotspot.mediaType || "none",
+
+                mediaUrl: hotspot.mediaUrl || "",
+
+                actionButton: hotspot.actionButton || { label: "", url: "" },
                 
                 targetUrl: hotspot.targetUrl || "",
 
@@ -173,7 +179,10 @@ export class ProjectManager {
         this.lo.hotspots = (project.hotspots ?? []).map(h => ({
             ...h,
             icon: h.icon || (h.type === "portal" ? "portal" : "default"),
-            customSvg: h.customSvg || ""
+            customSvg: h.customSvg || "",
+            mediaType: h.mediaType || "none",
+            mediaUrl: h.mediaUrl || "",
+            actionButton: h.actionButton || { label: "", url: "" }
         }));
 
         // Migrate any hotspot that uses "camera-0" to a new ID, to reserve "camera-0" strictly for initial view

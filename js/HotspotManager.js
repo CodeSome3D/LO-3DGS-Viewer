@@ -32,6 +32,12 @@ export class HotspotManager {
             type: isPortal ? "portal" : "hotspot",
             icon: isPortal ? "portal" : "default",
             customSvg: "",
+            mediaType: "none",
+            mediaUrl: "",
+            actionButton: {
+                label: "",
+                url: ""
+            },
             targetUrl: "",
 
             position: { ...this.lo.lastPickedPoint },

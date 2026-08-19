@@ -38,18 +38,22 @@ Welcome to the project roadmap for **LO-3DGS-Viewer**. This document outlines co
 
 ### Phase 5: Marker Icon Library 🎨
 - [x] **Vector SVG & Glyph Presets**: Built-in icons for Info (ℹ️), Photo (📷), Video (🎬), Audio (🔊), Pin (📍), Detail (🔍), Star (⭐), Tag (🏷️), Idea (💡), Door (🚪), Cart (🛒), Numbers 1–9, and Portal (🌀 / 🚀 / 🌐 / ➡️).
-- [x] **Custom SVG / Emoji / Symbol Support**: Input custom SVG markup or emojis.
+- [x] **Custom SVG / Emoji / Symbol Support**: Input custom SVG markup or text/emojis (limited to 3 symbols).
 - [x] **Visual Icon Picker**: Grid selector in the Editor properties panel with real-time viewport updates.
 - [x] **Project Persistence**: Seamless serialization in project JSON.
+
+### Phase 6: Rich Hotspot Media & Content 🎬
+- [x] **Media Attachments**:
+  - **Images**: Responsive image banner embedded inside hotspot cards.
+  - **Videos**: Auto-detected YouTube, Vimeo, and direct MP4 video embeds (responsive 16:9 player).
+  - **Audio**: Sound clips and audio narration player.
+- [x] **Rich Text & Markdown Formatting**: Client-side Markdown rendering supporting `**bold**`, `*italic*`, `[links](url)`, `# headings`, and `• bullets`.
+- [x] **Call-to-Action (CTA) Buttons**: Interactive custom action buttons embedded in hotspot cards.
+- [x] **Editor Integration & Serialization**: Dedicated Media & CTA controls in Properties panel and project JSON persistence.
 
 ---
 
 ## 🔮 Future Milestones
-
-### Phase 6: Rich Hotspot Media & Content
-- [ ] **Media Attachments**: Embedded photo galleries, YouTube/Vimeo video embeds, and local MP4s inside hotspot popovers.
-- [ ] **Rich Formatting**: Markdown support (bold, links, headers, bullet points).
-- [ ] **Call-to-Action Buttons**: Custom links, external URLs, and interactive triggers.
 
 ### Phase 7: Floorplan / Mini-Map Radar
 - [ ] **2D Floorplan Overlay**: Top-down floorplan widget showing user position and viewing cone radar.

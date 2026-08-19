@@ -1111,7 +1111,51 @@ export class UIManager {
 
                 <textarea
                     id="lo-hotspot-description"
-                    rows="5">${this.lo.selectedHotspot.description || ""}</textarea>
+                    rows="4">${this.lo.selectedHotspot.description || ""}</textarea>
+
+                <div style="font-size: 11px; opacity: 0.65; margin-top: 4px; margin-bottom: 12px; line-height: 1.4;">
+                    Supports markdown: <strong>**bold**</strong>, <em>*italic*</em>, <span style="color:#00e5ff;">[links](url)</span>, <code># heading</code>
+                </div>
+
+                <div class="lo-section-title">
+                    Media Attachment
+                </div>
+
+                <select id="lo-hotspot-media-type" style="width: 100%; margin-bottom: 8px;">
+                    <option value="none" ${(!this.lo.selectedHotspot.mediaType || this.lo.selectedHotspot.mediaType === "none") ? "selected" : ""}>None</option>
+                    <option value="image" ${this.lo.selectedHotspot.mediaType === "image" ? "selected" : ""}>Image (URL)</option>
+                    <option value="video" ${this.lo.selectedHotspot.mediaType === "video" ? "selected" : ""}>Video (YouTube / Vimeo / MP4)</option>
+                    <option value="audio" ${this.lo.selectedHotspot.mediaType === "audio" ? "selected" : ""}>Audio (MP3 / WAV)</option>
+                </select>
+
+                <div id="lo-hotspot-media-url-container" style="display: ${(!this.lo.selectedHotspot.mediaType || this.lo.selectedHotspot.mediaType === "none") ? "none" : "block"}; margin-bottom: 12px;">
+                    <input
+                        id="lo-hotspot-media-url"
+                        type="text"
+                        placeholder="https://... or YouTube / Vimeo URL"
+                        value="${(this.lo.selectedHotspot.mediaUrl || '').replace(/"/g, '&quot;')}"
+                        style="width: 100%;">
+                </div>
+
+                <div class="lo-section-title">
+                    Action Button (CTA)
+                </div>
+
+                <div style="margin-bottom: 6px;">
+                    <input
+                        id="lo-hotspot-cta-label"
+                        type="text"
+                        placeholder="Button Text (e.g. Learn More)"
+                        value="${(this.lo.selectedHotspot.actionButton?.label || '').replace(/"/g, '&quot;')}"
+                        style="width: 100%; margin-bottom: 6px;">
+                    
+                    <input
+                        id="lo-hotspot-cta-url"
+                        type="text"
+                        placeholder="Button Link URL (https://...)"
+                        value="${(this.lo.selectedHotspot.actionButton?.url || '').replace(/"/g, '&quot;')}"
+                        style="width: 100%; margin-bottom: 12px;">
+                </div>
             `}
 
             <div class="lo-section-title">
@@ -1268,38 +1312,71 @@ export class UIManager {
         };
 
         const description = document.getElementById("lo-hotspot-description");
+        if (description) {
+            description.oninput = () => {
+                if (this.lo.selectedHotspot) {
+                    this.lo.selectedHotspot.description = description.value;
+                }
+            };
+        }
 
-        description.oninput = () => {
-            this.lo.selectedHotspot.description = description.value;
-        };
+        const mediaType = document.getElementById("lo-hotspot-media-type");
+        const mediaUrl = document.getElementById("lo-hotspot-media-url");
+        const mediaUrlContainer = document.getElementById("lo-hotspot-media-url-container");
 
-        description.onfocus = () => {
-        };
+        if (mediaType) {
+            mediaType.onchange = () => {
+                if (!this.lo.selectedHotspot) return;
+                this.lo.selectedHotspot.mediaType = mediaType.value;
+                if (mediaUrlContainer) {
+                    mediaUrlContainer.style.display = mediaType.value === "none" ? "none" : "block";
+                }
+            };
+        }
 
-        description.onblur = () => {
-        };
+        if (mediaUrl) {
+            mediaUrl.oninput = () => {
+                if (!this.lo.selectedHotspot) return;
+                this.lo.selectedHotspot.mediaUrl = mediaUrl.value.trim();
+            };
+        }
 
-        document
-            .getElementById("lo-goto-camera")
-            .onclick = () => {
+        const ctaLabel = document.getElementById("lo-hotspot-cta-label");
+        const ctaUrl = document.getElementById("lo-hotspot-cta-url");
 
+        if (ctaLabel) {
+            ctaLabel.oninput = () => {
+                if (!this.lo.selectedHotspot) return;
+                this.lo.selectedHotspot.actionButton ??= { label: "", url: "" };
+                this.lo.selectedHotspot.actionButton.label = ctaLabel.value;
+            };
+        }
+
+        if (ctaUrl) {
+            ctaUrl.oninput = () => {
+                if (!this.lo.selectedHotspot) return;
+                this.lo.selectedHotspot.actionButton ??= { label: "", url: "" };
+                this.lo.selectedHotspot.actionButton.url = ctaUrl.value.trim();
+            };
+        }
+
+        const gotoCam = document.getElementById("lo-goto-camera");
+        if (gotoCam) {
+            gotoCam.onclick = () => {
                 const hotspot = this.lo.selectedHotspot;
-
                 if (!hotspot) {
                     return;
                 }
-
                 this.lo.cameraManager.goTo(hotspot.cameraId);
-
             };
+        }
 
-        document
-            .getElementById("lo-update-camera")
-            .onclick = () => {
-
+        const updateCam = document.getElementById("lo-update-camera");
+        if (updateCam) {
+            updateCam.onclick = () => {
                 this.lo.updateSelectedHotspotCamera();
-
             };
+        }
     }
 
     showToast(text) {

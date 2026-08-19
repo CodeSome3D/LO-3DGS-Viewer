@@ -675,9 +675,12 @@ input[type="text"]:focus{
     align-items:center;
 
     left: 50%;
-    bottom: 64px;
+    bottom: 48px;
 
-    width: min(520px, calc(100vw - 48px));
+    width: min(520px, calc(100vw - 36px));
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    overflow-x: hidden;
 
     transform:
         translateX(-50%)
@@ -696,6 +699,16 @@ input[type="text"]:focus{
         transform 0.3s ease;
 
     z-index: 999999;
+    padding-bottom: 4px;
+}
+
+#lo-tour-card::-webkit-scrollbar {
+    width: 4px;
+}
+
+#lo-tour-card::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
 }
 
 #lo-tour-card.visible {
@@ -704,6 +717,69 @@ input[type="text"]:focus{
     transform:
         translateX(-50%)
         translateY(0);
+}
+
+#lo-tour-media-container {
+    width: 100%;
+    margin-bottom: 12px;
+    display: none;
+}
+
+#lo-tour-media-container.has-media {
+    display: block;
+}
+
+.lo-tour-media-frame {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.lo-tour-media-image-frame {
+    max-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lo-tour-media-img {
+    width: 100%;
+    height: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    display: block;
+}
+
+.lo-tour-media-video-frame {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+}
+
+.lo-tour-media-video-frame iframe,
+.lo-tour-media-video-frame video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.lo-tour-media-audio-frame {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lo-tour-media-audio {
+    width: 100%;
+    height: 36px;
 }
 
 #lo-tour-title {
@@ -721,16 +797,102 @@ input[type="text"]:focus{
     margin-top: 8px;
 
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.55;
 
-    white-space: pre-line;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+    text-align: center;
+    max-width: 100%;
+}
 
-    pointer-events: none;
+.lo-md-link {
+    color: #00e5ff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 600;
+    transition: color 0.15s ease;
+    pointer-events: auto;
+}
 
-    opacity: 1;
+.lo-md-link:hover {
+    color: #70e4ff;
+}
 
-    text-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.8);
+.lo-md-h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 8px 0 4px 0;
+    color: #fff;
+}
+
+.lo-md-h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 6px 0 3px 0;
+    color: #00e5ff;
+}
+
+.lo-md-h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 4px 0 2px 0;
+}
+
+.lo-md-code {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.lo-md-ul {
+    text-align: left;
+    display: inline-block;
+    margin: 6px 0;
+    padding-left: 20px;
+}
+
+.lo-md-li {
+    margin-bottom: 3px;
+}
+
+#lo-tour-cta-container {
+    margin-top: 12px;
+    margin-bottom: 8px;
+    display: none;
+}
+
+#lo-tour-cta-container.visible {
+    display: block;
+}
+
+.lo-tour-cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 20px;
+    background: linear-gradient(135deg, #00e5ff 0%, #0077ff 100%);
+    color: #04121a;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    border-radius: 24px;
+    box-shadow: 0 4px 14px rgba(0, 229, 255, 0.4);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    user-select: none;
+    pointer-events: auto;
+}
+
+.lo-tour-cta-button:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 20px rgba(0, 229, 255, 0.65);
+    color: #000;
 }
 
 #lo-tour-counter {

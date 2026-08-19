@@ -423,6 +423,11 @@ window.lo = {
                 this.viewer.global.config.contentUrl = urlOrFile;
             }
         }
+        document.documentElement.style.setProperty('--canvas-opacity', '1');
+        const poster = document.getElementById('poster');
+        if (poster) {
+            poster.style.display = 'none';
+        }
         return res;
     },
 
@@ -650,6 +655,7 @@ function init() {
     }
 
     window.lo.init(viewer);
+    document.documentElement.style.setProperty('--canvas-opacity', '1');
     window.lo.setTheme(window.lo.projectcard.theme);
 
     const global =
