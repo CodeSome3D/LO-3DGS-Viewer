@@ -36,6 +36,15 @@ export class TourUIManager {
         previous.id = "lo-tour-previous";
         previous.className = "lo-tour-button";
         previous.textContent = "‹";
+        previous.title = "Previous Hotspot";
+
+        const playBtn =
+            document.createElement("button");
+
+        playBtn.id = "lo-tour-play";
+        playBtn.className = "lo-tour-play-button";
+        playBtn.textContent = "▶";
+        playBtn.title = "Play Tour";
 
         const counter =
             document.createElement("div");
@@ -49,17 +58,32 @@ export class TourUIManager {
         next.id = "lo-tour-next";
         next.className = "lo-tour-button";
         next.textContent = "›";
+        next.title = "Next Hotspot";
 
         controls.append(
             previous,
+            playBtn,
             counter,
             next
         );
 
+        const progressContainer =
+            document.createElement("div");
+
+        progressContainer.id = "lo-tour-progress-container";
+
+        const progressBar =
+            document.createElement("div");
+
+        progressBar.id = "lo-tour-progress-bar";
+
+        progressContainer.appendChild(progressBar);
+
         card.append(
             title,
             description,
-            controls
+            controls,
+            progressContainer
         );
 
         document.body.appendChild(card);
@@ -71,12 +95,52 @@ export class TourUIManager {
             this.lo.tourManager.previous();
         };
 
+        playBtn.onclick = e => {
+
+            e.stopPropagation();
+
+            this.lo.tourManager.toggleAutoplay();
+        };
+
         next.onclick = e => {
 
             e.stopPropagation();
 
             this.lo.tourManager.next();
         };
+    }
+
+    setPlayState(isPlaying) {
+
+        const playBtn =
+            document.getElementById("lo-tour-play");
+
+        const progressContainer =
+            document.getElementById("lo-tour-progress-container");
+
+        if (playBtn) {
+            playBtn.textContent = isPlaying ? "⏸" : "▶";
+            playBtn.classList.toggle("playing", isPlaying);
+            playBtn.title = isPlaying ? "Pause Tour" : "Play Tour";
+        }
+
+        if (progressContainer) {
+            progressContainer.classList.toggle("visible", isPlaying);
+            if (!isPlaying) {
+                this.setProgress(0);
+            }
+        }
+    }
+
+    setProgress(progress) {
+
+        const progressBar =
+            document.getElementById("lo-tour-progress-bar");
+
+        if (progressBar) {
+            const pct = Math.max(0, Math.min(100, Math.round(progress * 100)));
+            progressBar.style.width = `${pct}%`;
+        }
     }
 
     update(hotspot) {

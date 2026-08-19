@@ -1,3 +1,5 @@
+import { IconLibrary } from "./IconLibrary.js";
+
 export class HotspotManager {
 
     constructor(lo) {
@@ -28,6 +30,8 @@ export class HotspotManager {
             description: "",
             color: isPortal ? "#00e5ff" : "#ff7a00",
             type: isPortal ? "portal" : "hotspot",
+            icon: isPortal ? "portal" : "default",
+            customSvg: "",
             targetUrl: "",
 
             position: { ...this.lo.lastPickedPoint },
@@ -43,9 +47,15 @@ export class HotspotManager {
     select(id) {
 
         this.lo.selectedHotspot =
-            this.lo.hotspots.find(h => h.id === id) ?? null;
+            this.lo.hotspots.find(
+                hotspot =>
+                    hotspot.id === id
+            );
 
-        this.refresh();
+        if (this.lo.isEditor()) {
+
+            this.lo.uiManager?.refresh();
+        }
     }
 
     clearSelection() {
@@ -57,26 +67,24 @@ export class HotspotManager {
 
     delete(id) {
 
-        const hotspot =
-            this.lo.hotspots.find(h => h.id === id);
-
-        if (!hotspot) {
-            return;
-        }
-
-        hotspot.element?.remove();
-        hotspot.element = null;
-
         this.lo.hotspots =
-            this.lo.hotspots.filter(h => h !== hotspot);
+            this.lo.hotspots.filter(
+                hotspot =>
+                    hotspot.id !== id
+            );
 
-        delete this.lo.cameras[hotspot.cameraId];
-
-        if (this.lo.selectedHotspot === hotspot) {
+        if (
+            this.lo.selectedHotspot?.id === id
+        ) {
             this.lo.selectedHotspot = null;
         }
 
-        this.lo.uiManager?.refresh();
+        this.lo.renderHotspots();
+
+        if (this.lo.isEditor()) {
+
+            this.lo.uiManager?.refresh();
+        }
     }
 
     deleteSelected() {
@@ -107,8 +115,34 @@ export class HotspotManager {
 
         this.lo.moveHotspotMode = true;
 
-        this.lo.uiManager.showToast(
-            "Click a new position for the hotspot."
+        this.lo.uiManager?.showToast(
+            "Click on the model to place the hotspot"
+        );
+    }
+
+    applyMovedPosition(point) {
+
+        if (
+            !this.lo.selectedHotspot ||
+            !point
+        ) {
+            return;
+        }
+
+        this.lo.selectedHotspot.position =
+            { ...point };
+
+        this.lo.moveHotspotMode = false;
+
+        this.lo.renderHotspots();
+
+        if (this.lo.isEditor()) {
+
+            this.lo.uiManager?.refresh();
+        }
+
+        this.lo.uiManager?.showToast(
+            "✓ Hotspot position updated"
         );
     }
 
@@ -126,16 +160,18 @@ export class HotspotManager {
 
     render() {
 
+        const container =
+            document.getElementById("lo-viewer");
+
+        if (!container) {
+            return;
+        }
+
+        container
+            .querySelectorAll(".lo-hotspot")
+            .forEach(e => e.remove());
+
         for (const hotspot of this.lo.hotspots) {
-
-            if (
-                hotspot.element instanceof HTMLElement &&
-                hotspot.element.isConnected
-            ) {
-                continue;
-            }
-
-            hotspot.element = null;
 
             const p =
                 this.lo.project(hotspot.position);
@@ -154,9 +190,18 @@ export class HotspotManager {
 
             const marker = document.createElement("div");
             marker.className = "lo-hotspot-dot";
+            
+            const iconHtml = IconLibrary.getIconHTML(hotspot.icon, hotspot.customSvg, hotspot.type);
+            if (iconHtml) {
+                marker.innerHTML = iconHtml;
+                marker.classList.add("has-icon");
+            }
+
             if (hotspot.type === "portal") {
                 marker.classList.add("lo-portal-dot");
-                marker.textContent = "🌀";
+                marker.style.background = "";
+            } else {
+                marker.style.background = hotspot.color || "#ff7a00";
             }
 
             marker.classList.toggle(
@@ -187,10 +232,16 @@ export class HotspotManager {
 
                 if (hotspot.type === "portal") {
                     if (hotspot.targetUrl) {
-                        this.lo.uiManager?.showToast("Loading portal...");
-                        this.lo.projectManager.loadFromURL(hotspot.targetUrl).catch(e => {
+                        const targetTitle = hotspot.title || "Next Scene";
+                        this.lo.showTransition?.(targetTitle, "LOADING").then(() => {
+                            return this.lo.projectManager.loadFromURL(hotspot.targetUrl);
+                        }).catch(e => {
                             console.error("Failed to load portal:", e);
                             this.lo.uiManager?.showToast("❌ Failed to load portal project");
+                        }).finally(() => {
+                            setTimeout(() => {
+                                this.lo.hideTransition?.();
+                            }, 250);
                         });
                     } else {
                         console.warn("Portal has no target URL configured.");
@@ -268,15 +319,16 @@ export class HotspotManager {
                     hotspot === this.lo.selectedHotspot
                 );
 
-                if (hotspot.type === "portal") {
-                    marker.classList.add("lo-portal-dot");
-                    marker.textContent = "🌀";
+                const isPortal = hotspot.type === "portal";
+                marker.classList.toggle("lo-portal-dot", isPortal);
+
+                const iconHtml = IconLibrary.getIconHTML(hotspot.icon, hotspot.customSvg, hotspot.type);
+                marker.innerHTML = iconHtml;
+                marker.classList.toggle("has-icon", Boolean(iconHtml));
+
+                if (isPortal) {
                     marker.style.background = "";
                 } else {
-                    marker.classList.remove("lo-portal-dot");
-                    if (marker.textContent === "🌀") {
-                        marker.textContent = "";
-                    }
                     marker.style.background =
                         hotspot.color || "#ff7a00";
                 }

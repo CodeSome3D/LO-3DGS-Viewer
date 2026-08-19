@@ -369,6 +369,34 @@ window.lo = {
         return this.projectManager.load(file);
     },
 
+    showTransition(title = "Entering Scene...", subtitle = "LOADING") {
+        let overlay = document.getElementById("lo-transition-overlay");
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = "lo-transition-overlay";
+            overlay.innerHTML = `
+                <div class="lo-transition-portal-icon">🌀</div>
+                <div class="lo-transition-title" id="lo-transition-title">Entering Scene...</div>
+                <div class="lo-transition-subtitle" id="lo-transition-subtitle">LOADING</div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        const titleEl = document.getElementById("lo-transition-title");
+        const subtitleEl = document.getElementById("lo-transition-subtitle");
+        if (titleEl) titleEl.textContent = title;
+        if (subtitleEl) subtitleEl.textContent = subtitle;
+
+        overlay.classList.add("active");
+        return new Promise(resolve => setTimeout(resolve, 450));
+    },
+
+    hideTransition() {
+        const overlay = document.getElementById("lo-transition-overlay");
+        if (overlay) {
+            overlay.classList.remove("active");
+        }
+    },
+
     loadProjectFromURL(url) {
         return this.projectManager.loadFromURL(url);
     },
@@ -544,6 +572,8 @@ window.lo = {
     setTheme(theme) {
 
         const root = document.documentElement;
+        const headerLogo = document.getElementById("lo-header-logo");
+        const lightoriginLogo = document.querySelector("#lightorigin-logo img");
 
         if (theme === "dark") {
 
@@ -564,10 +594,13 @@ window.lo = {
                 this.applyBackground();
             }
 
-            const logo = document.querySelector("#lightorigin-logo img");
+            if (headerLogo) {
+                headerLogo.src = "logo_LO_hor.png";
+            }
 
-            if (logo) {
-                logo.style.filter = "none";
+            if (lightoriginLogo) {
+                lightoriginLogo.src = "logo_LO.png";
+                lightoriginLogo.style.filter = "none";
             }
 
             return;
@@ -593,10 +626,13 @@ window.lo = {
                 this.applyBackground();
             }
 
-            const logo = document.querySelector("#lightorigin-logo img");
+            if (headerLogo) {
+                headerLogo.src = "logo_LO_hor_dark.png";
+            }
 
-            if (logo) {
-                logo.style.filter = "invert(1)";
+            if (lightoriginLogo) {
+                lightoriginLogo.src = "logo_LO_dark.png";
+                lightoriginLogo.style.filter = "none";
             }
         }
     },
@@ -710,8 +746,14 @@ function init() {
         window.addEventListener("popstate", () => {
             const p = new URLSearchParams(window.location.search).get("project");
             if (p) {
-                window.lo.loadProjectFromURL(p, false).catch(e => {
+                window.lo.showTransition?.(p, "LOADING").then(() => {
+                    return window.lo.loadProjectFromURL(p, false);
+                }).catch(e => {
                     console.error("Popstate project load failed:", e);
+                }).finally(() => {
+                    setTimeout(() => {
+                        window.lo.hideTransition?.();
+                    }, 250);
                 });
             }
         });

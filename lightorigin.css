@@ -204,6 +204,34 @@ input[type="text"]:focus{
     font-size:11px;
     font-weight:700;
     line-height:1;
+    user-select: none;
+}
+
+.lo-hotspot-dot.has-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+}
+
+.lo-hotspot-dot svg,
+.lo-portal-dot svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+}
+
+.lo-icon-glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.lo-icon-glyph.lo-icon-compact {
+    font-size: 9.5px;
+    letter-spacing: -0.5px;
 }
 
 .lo-hotspot-dot.selected{
@@ -256,6 +284,51 @@ input[type="text"]:focus{
     transform: scale(1.22);
     border-color: #00e5ff;
     box-shadow: 0 0 18px 6px rgba(0, 229, 255, 0.9);
+}
+
+.lo-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.lo-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    background: var(--lo-panel);
+    border: 1px solid var(--lo-border);
+    border-radius: 6px;
+    color: var(--lo-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.lo-icon-btn:hover {
+    background: var(--lo-panel-hover);
+    border-color: var(--lo-accent);
+    transform: scale(1.08);
+}
+
+.lo-icon-btn.selected {
+    background: rgba(0, 229, 255, 0.2);
+    border-color: #00e5ff;
+    color: #00e5ff;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}
+
+.lo-icon-btn svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+}
+
+.lo-icon-btn .lo-icon-glyph {
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .lo-hotspot-label{
@@ -675,6 +748,112 @@ input[type="text"]:focus{
     opacity: 0.7;
 
     user-select: none;
+}
+
+.lo-tour-play-button {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0, 229, 255, 0.4);
+    border-radius: 50%;
+    background: rgba(4, 24, 38, 0.85);
+    color: #00e5ff;
+    font-size: 15px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    pointer-events: auto;
+    user-select: none;
+}
+
+.lo-tour-play-button:hover {
+    background: rgba(0, 45, 70, 0.95);
+    border-color: #00e5ff;
+    transform: scale(1.08);
+    box-shadow: 0 0 14px rgba(0, 229, 255, 0.6);
+}
+
+.lo-tour-play-button.playing {
+    background: rgba(0, 229, 255, 0.25);
+    border-color: #00e5ff;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+#lo-tour-progress-container {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    margin-top: 14px;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#lo-tour-progress-container.visible {
+    opacity: 1;
+}
+
+#lo-tour-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #00e5ff, #0077ff);
+    border-radius: 2px;
+    transition: width 0.08s linear;
+}
+
+#lo-transition-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(10, 25, 38, 0.95) 0%, rgba(4, 8, 12, 0.98) 100%);
+    backdrop-filter: blur(12px);
+    z-index: 9999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #fff;
+    user-select: none;
+}
+
+#lo-transition-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.lo-transition-portal-icon {
+    font-size: 52px;
+    margin-bottom: 16px;
+    animation: lo-portal-swirl 2s infinite linear;
+    filter: drop-shadow(0 0 16px rgba(0, 229, 255, 0.8));
+}
+
+@keyframes lo-portal-swirl {
+    0% { transform: scale(0.92) rotate(0deg); }
+    50% { transform: scale(1.12) rotate(180deg); }
+    100% { transform: scale(0.92) rotate(360deg); }
+}
+
+.lo-transition-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
+}
+
+.lo-transition-subtitle {
+    margin-top: 8px;
+    font-size: 13px;
+    color: rgba(0, 229, 255, 0.8);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
 }
 
 #lo-background{

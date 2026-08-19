@@ -1,5 +1,6 @@
 {
     "version": 2,
+    "theme": "dark",
     "tonemapping": "none",
     "highPrecisionRendering": false,
     "background": {

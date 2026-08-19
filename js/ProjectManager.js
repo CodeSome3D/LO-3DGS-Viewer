@@ -33,6 +33,10 @@ export class ProjectManager {
                 color: hotspot.color,
                 
                 type: hotspot.type || "hotspot",
+
+                icon: hotspot.icon || (hotspot.type === "portal" ? "portal" : "default"),
+
+                customSvg: hotspot.customSvg || "",
                 
                 targetUrl: hotspot.targetUrl || "",
 
@@ -166,7 +170,11 @@ export class ProjectManager {
         }
 
         this.lo.cameras = project.cameras ?? {};
-        this.lo.hotspots = project.hotspots ?? [];
+        this.lo.hotspots = (project.hotspots ?? []).map(h => ({
+            ...h,
+            icon: h.icon || (h.type === "portal" ? "portal" : "default"),
+            customSvg: h.customSvg || ""
+        }));
 
         // Migrate any hotspot that uses "camera-0" to a new ID, to reserve "camera-0" strictly for initial view
         const hasCamera0Hotspot = this.lo.hotspots.some(h => h.cameraId === "camera-0");
@@ -352,6 +360,13 @@ export class ProjectManager {
 
             if (this.lo.tourManager) {
                 this.lo.tourManager.currentHotspotIndex = -1;
+                if (this.lo.projectcard.tourAutoplayOnLoad) {
+                    setTimeout(() => {
+                        this.lo.tourManager.startAutoplay();
+                    }, 600);
+                } else {
+                    this.lo.tourManager.pauseAutoplay();
+                }
             }
             this.lo.tourUIManager?.update(null);
 

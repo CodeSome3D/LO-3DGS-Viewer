@@ -2,10 +2,10 @@
   "project": {
     "name": "Three Figures In Museum",
     "version": 1,
-    "theme": "dark",
+    "theme": "light",
     "background": {
       "type": "panorama",
-      "color": "#0A1D24",
+      "color": "#0a1d24",
       "gradient": {
         "mode": "linear",
         "angle": 135,
@@ -148,7 +148,7 @@
       "description": "",
       "color": "#00e5ff",
       "type": "portal",
-      "targetUrl": "\\projects\\00_3_figures\\00_3_figures.json",
+      "targetUrl": "./projects/03_figure/03_figure.json",
       "position": {
         "x": -15.116054530778262,
         "y": 23.728699043353185,

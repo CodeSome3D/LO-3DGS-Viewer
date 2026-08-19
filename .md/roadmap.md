@@ -1,0 +1,62 @@
+# LightOrigin 3DGS Viewer & Virtual Touring — Roadmap
+
+Welcome to the project roadmap for **LO-3DGS-Viewer**. This document outlines completed milestones, current work in progress, and planned future capabilities.
+
+---
+
+## 🏁 Completed Milestones
+
+### Phase 1: Core Viewer & Environment
+- [x] **3DGS Rendering Engine**: High-performance Gaussian Splatting rendering with WebGPU / WebGL support.
+- [x] **Camera & Controls**: Orbit, pan, zoom, custom bounding-box framing, and autospin.
+- [x] **Background Customization**:
+  - Solid Color
+  - Gradients (Linear, customizable colors & angles)
+  - 2D Static Images
+  - 360° Equirectangular Panorama with horizontal rotation offset
+- [x] **Themes**: Dark and Light theme presets with theme-aware logo switching.
+
+### Phase 2: Hotspots & Annotations
+- [x] **3D Surface Picking**: Raycasting on splat geometries to anchor hotspots precisely.
+- [x] **Camera Views**: Binding camera vantage points to individual hotspots with smooth fly-to animations.
+- [x] **Hotspot Cards**: Titles, descriptions, color picker, reordering, and deleting.
+- [x] **Viewer Tour Navigation**: Sequential `< >` stepping through annotations with progress indicator (`1 / N`).
+
+### Phase 3: Virtual Touring & Portals 🌀
+- [x] **Cross-Scene Portals**: Special gateways linking separate 3DGS scenes into an interconnected virtual tour.
+- [x] **Visual Identity**: Glowing pulsing **🌀** icon with dynamic cyan halo.
+- [x] **Isolated Navigation**: Separate Hotspots vs. Portals lists in Editor; portals excluded from step-by-step hotspot tour sequences.
+- [x] **Browser History & URL Sync**: Automatic `history.pushState` URL address bar updates (`?project=...`) and Back/Forward browser button navigation.
+- [x] **Dynamic Splat Swapping**: Reliable loading, caching, and unloading of `.sog`/`.ply` models across scenes.
+
+### Phase 4: Tour Transitions & Autoplay
+- [x] **Cinematic Portal Transitions**: Full-screen dark-glass overlay with glowing swirl animation during scene loading to prevent asset flicker.
+- [x] **Guided Tour Autoplay (▶ / ⏸)**: Interactive Play/Pause button in the Viewer tour bar.
+- [x] **Smooth Progress Countdown**: Dynamic countdown progress bar showing time until next camera transition.
+- [x] **Smart Interaction Pause**: Automatically pauses autoplay when the user manually rotates, pans, or zooms the camera.
+- [x] **Project Tour Settings**: Configurable step duration (3s, 5s, 8s, 10s, 15s) and "Autoplay tour on load" toggle in the Editor.
+
+### Phase 5: Marker Icon Library 🎨
+- [x] **Vector SVG & Glyph Presets**: Built-in icons for Info (ℹ️), Photo (📷), Video (🎬), Audio (🔊), Pin (📍), Detail (🔍), Star (⭐), Tag (🏷️), Idea (💡), Door (🚪), Cart (🛒), Numbers 1–9, and Portal (🌀 / 🚀 / 🌐 / ➡️).
+- [x] **Custom SVG / Emoji / Symbol Support**: Input custom SVG markup or emojis.
+- [x] **Visual Icon Picker**: Grid selector in the Editor properties panel with real-time viewport updates.
+- [x] **Project Persistence**: Seamless serialization in project JSON.
+
+---
+
+## 🔮 Future Milestones
+
+### Phase 6: Rich Hotspot Media & Content
+- [ ] **Media Attachments**: Embedded photo galleries, YouTube/Vimeo video embeds, and local MP4s inside hotspot popovers.
+- [ ] **Rich Formatting**: Markdown support (bold, links, headers, bullet points).
+- [ ] **Call-to-Action Buttons**: Custom links, external URLs, and interactive triggers.
+
+### Phase 7: Floorplan / Mini-Map Radar
+- [ ] **2D Floorplan Overlay**: Top-down floorplan widget showing user position and viewing cone radar.
+- [ ] **Interactive Markers**: Clickable points on the floorplan to teleport across rooms.
+- [ ] **Multi-Level / Multi-Room Support**: Switch floorplans when traveling through portals.
+
+### Phase 8: Standalone Export & Embedding
+- [ ] **1-Click Zip / HTML Bundle**: Self-contained export containing all project data and assets ready for hosting.
+- [ ] **Embed Code Generator**: Easy `<iframe>` embed snippet generator with customizable parameters (`noui`, `autospin`, etc.).
+- [ ] **WebXR / VR Mode**: Spatial headset and mobile gyroscope viewing support.

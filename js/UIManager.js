@@ -1,3 +1,5 @@
+import { IconLibrary } from "./IconLibrary.js";
+
 export class UIManager {
     constructor(lo) {
         this.lo = lo;
@@ -82,6 +84,30 @@ export class UIManager {
                             <span>Autospin on load</span>
 
                         </label>
+
+                        <label class="lo-checkbox-row" style="margin-top: 4px;">
+
+                            <input
+                                id="lo-tour-autoplay-on-load"
+                                type="checkbox">
+
+                            <span>Autoplay tour on load</span>
+
+                        </label>
+
+                        <div class="lo-section" style="margin-top: 8px;">
+
+                            <div class="lo-section-title">Tour Step Duration</div>
+
+                            <select id="lo-tour-dwell-time" class="lo-select">
+                                <option value="3000">3 Seconds</option>
+                                <option value="5000">5 Seconds (Default)</option>
+                                <option value="8000">8 Seconds</option>
+                                <option value="10000">10 Seconds</option>
+                                <option value="15000">15 Seconds</option>
+                            </select>
+
+                        </div>
 
                         <button
                             id="lo-set-initial-view"
@@ -368,6 +394,26 @@ export class UIManager {
         const theme = document.getElementById("lo-theme");
 
         const autospin = document.getElementById("lo-autospin-on-load");
+        const tourAutoplay = document.getElementById("lo-tour-autoplay-on-load");
+        const tourDwellTime = document.getElementById("lo-tour-dwell-time");
+
+        if (autospin) {
+            autospin.onchange = () => {
+                this.lo.projectcard.autospinOnLoad = autospin.checked;
+            };
+        }
+
+        if (tourAutoplay) {
+            tourAutoplay.onchange = () => {
+                this.lo.projectcard.tourAutoplayOnLoad = tourAutoplay.checked;
+            };
+        }
+
+        if (tourDwellTime) {
+            tourDwellTime.onchange = () => {
+                this.lo.projectcard.tourDwellTime = parseInt(tourDwellTime.value, 10);
+            };
+        }
 
         const setInitialViewBtn = document.getElementById("lo-set-initial-view");
         if (setInitialViewBtn) {
@@ -710,13 +756,27 @@ export class UIManager {
         const picker = document.getElementById("lo-bg-picker");
         const theme = document.getElementById("lo-theme");
         const autospin = document.getElementById("lo-autospin-on-load");
+        const tourAutoplay = document.getElementById("lo-tour-autoplay-on-load");
+        const tourDwellTime = document.getElementById("lo-tour-dwell-time");
 
         if (autospin) {
             autospin.checked =
                 this.lo.projectcard.autospinOnLoad
                 ?? false;
         }
-        theme.value = this.lo.projectcard.theme;
+
+        if (tourAutoplay) {
+            tourAutoplay.checked =
+                this.lo.projectcard.tourAutoplayOnLoad
+                ?? false;
+        }
+
+        if (tourDwellTime) {
+            tourDwellTime.value =
+                String(this.lo.projectcard.tourDwellTime || 5000);
+        }
+        theme.value = this.lo.projectcard.theme || "dark";
+        this.lo.setTheme(this.lo.projectcard.theme || "dark");
 
         type.value = bg.type;
         picker.value = bg.color;
@@ -973,6 +1033,22 @@ export class UIManager {
             return;
         }
 
+        const activeIcon = this.lo.selectedHotspot.icon || (this.lo.selectedHotspot.type === "portal" ? "portal" : "default");
+        const availableIcons = IconLibrary.getAvailablePresets(this.lo.selectedHotspot.type);
+
+        let iconGridHtml = `<div class="lo-icon-grid">`;
+        for (const iconKey of availableIcons) {
+            const preset = IconLibrary.presets[iconKey];
+            const isSelected = activeIcon === iconKey;
+            let iconInner = preset.svg || (preset.glyph ? `<span class="lo-icon-glyph">${preset.glyph}</span>` : `<div style="width:8px;height:8px;border-radius:50%;background:currentColor;"></div>`);
+            iconGridHtml += `
+                <button type="button" class="lo-icon-btn ${isSelected ? 'selected' : ''}" data-icon="${iconKey}" title="${preset.label}">
+                    ${iconInner}
+                </button>
+            `;
+        }
+        iconGridHtml += `</div>`;
+
     properties.innerHTML = `
         <div class="lo-property-card">
             
@@ -984,6 +1060,19 @@ export class UIManager {
                 <option value="hotspot" ${this.lo.selectedHotspot.type !== "portal" ? "selected" : ""}>Hotspot</option>
                 <option value="portal" ${this.lo.selectedHotspot.type === "portal" ? "selected" : ""}>Portal</option>
             </select>
+
+            <div class="lo-section-title">
+                Icon
+            </div>
+
+            ${iconGridHtml}
+
+            ${activeIcon === "custom" ? `
+                <div id="lo-custom-icon-row" style="margin-bottom: 12px;">
+                    <label style="font-size: 11px; opacity: 0.8; margin-bottom: 4px; display: block;">Custom SVG / Emoji / Text</label>
+                    <input id="lo-hotspot-custom-svg" type="text" placeholder="e.g. 💎 or <svg>...</svg>" value="${(this.lo.selectedHotspot.customSvg || '').replace(/"/g, '&quot;')}" style="width: 100%;">
+                </div>
+            ` : ""}
 
             <div class="lo-section-title">
                 Title
@@ -1094,6 +1183,35 @@ export class UIManager {
         title.onblur = () => {
         };
 
+        properties.querySelectorAll(".lo-icon-btn").forEach(btn => {
+            btn.onclick = () => {
+                const iconKey = btn.dataset.icon;
+                const hotspot = this.lo.selectedHotspot;
+                if (!hotspot) return;
+                hotspot.icon = iconKey;
+                this.refreshProperties();
+                this.lo.renderHotspots();
+            };
+        });
+
+        const customSvg = document.getElementById("lo-hotspot-custom-svg");
+        if (customSvg) {
+            customSvg.oninput = () => {
+                const hotspot = this.lo.selectedHotspot;
+                if (!hotspot) return;
+                let val = customSvg.value;
+                if (val && !val.trim().startsWith("<svg") && !val.trim().startsWith("<?xml")) {
+                    const symbols = Array.from(val).slice(0, 3).join("");
+                    if (symbols !== val) {
+                        val = symbols;
+                        customSvg.value = val;
+                    }
+                }
+                hotspot.customSvg = val;
+                this.lo.renderHotspots();
+            };
+        }
+
         const type = document.getElementById("lo-hotspot-type");
         if (type) {
             type.onchange = () => {
@@ -1102,6 +1220,11 @@ export class UIManager {
                 hotspot.type = type.value;
                 if (hotspot.type === "portal" && !hotspot.color) {
                     hotspot.color = "#00e5ff"; // Default portal color
+                }
+                if (hotspot.type === "portal" && (!hotspot.icon || hotspot.icon === "default")) {
+                    hotspot.icon = "portal";
+                } else if (hotspot.type !== "portal" && hotspot.icon === "portal") {
+                    hotspot.icon = "default";
                 }
                 this.refreshProperties();
                 this.refreshHotspotList();
