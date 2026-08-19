@@ -122,17 +122,25 @@ export class PickingManager {
 
     placeHotspot() {
 
+        const isPortal = this.lo.waitingForHotspotPick === "portal";
+        const type = isPortal ? "portal" : "hotspot";
+
         this.lo.waitingForHotspotPick = false;
 
         document
             .getElementById("lo-add-hotspot")
             ?.classList.remove("active");
 
+        document
+            .getElementById("lo-add-portal")
+            ?.classList.remove("active");
+
         this.lo.canvas.style.cursor = "";
 
         const hotspot =
             this.lo.hotspotManager.create(
-                "New Hotspot"
+                isPortal ? "New Portal" : "New Hotspot",
+                type
             );
 
         if (!hotspot) {

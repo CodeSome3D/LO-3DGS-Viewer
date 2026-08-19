@@ -25,7 +25,7 @@
         "file": {}
       }
     },
-    "scene": "03_figure.sog"
+    "scene": "./projects/03_figure/03_figure.sog"
   },
   "cameras": {
     "camera-0": {
@@ -111,6 +111,20 @@
       },
       "distance": 17.485681739477688,
       "fov": 75
+    },
+    "camera-7": {
+      "position": {
+        "x": -3.265550314909842,
+        "y": 22.985913286100505,
+        "z": 1.680258827869693
+      },
+      "angles": {
+        "x": -24.684247052385892,
+        "y": -0.910096739667543,
+        "z": 0
+      },
+      "distance": 43.17070015571866,
+      "fov": 75
     }
   },
   "hotspots": [
@@ -119,6 +133,8 @@
       "title": "Hotspot 01",
       "description": "",
       "color": "#ff0000",
+      "type": "hotspot",
+      "targetUrl": "",
       "position": {
         "x": -0.8938147487427245,
         "y": 51.134255755542505,
@@ -131,6 +147,8 @@
       "title": "Hotspot 02",
       "description": "",
       "color": "#aeff00",
+      "type": "hotspot",
+      "targetUrl": "",
       "position": {
         "x": -0.4795957782122202,
         "y": 34.26588556226066,
@@ -143,6 +161,8 @@
       "title": "Hotspot 03",
       "description": "",
       "color": "#ff00bb",
+      "type": "hotspot",
+      "targetUrl": "",
       "position": {
         "x": 0.5461804250933965,
         "y": 14.21314067174388,
@@ -155,6 +175,8 @@
       "title": "Hotspot 04",
       "description": "",
       "color": "#0055ff",
+      "type": "hotspot",
+      "targetUrl": "",
       "position": {
         "x": 6.876058761264168,
         "y": 8.10614834677398,
@@ -167,12 +189,28 @@
       "title": "Hotspot 05",
       "description": "",
       "color": "#bb00ff",
+      "type": "hotspot",
+      "targetUrl": "",
       "position": {
         "x": -2.0294574645738614,
         "y": 0.977534248978045,
         "z": -5.884521165384865
       },
       "cameraId": "camera-5"
+    },
+    {
+      "id": "1787120548852",
+      "title": "Next Room",
+      "description": "",
+      "color": "#ff7a00",
+      "type": "portal",
+      "targetUrl": "./projects/00_3_figures/00_3_figures.json",
+      "position": {
+        "x": -3.265550314909842,
+        "y": 22.9859132861005,
+        "z": 1.6802588278696942
+      },
+      "cameraId": "camera-7"
     }
   ]
 }

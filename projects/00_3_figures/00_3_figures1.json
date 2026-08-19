@@ -25,21 +25,21 @@
       }
     },
     "autospinOnLoad": true,
-    "scene": "./scene.sog"
+    "scene": "./projects/00_3_figures/00_3_figures.sog"
   },
   "cameras": {
     "camera-0": {
       "position": {
-        "x": -25.532909430483134,
-        "y": 36.37970365802112,
-        "z": 9.954143807077225
+        "x": 3.1335560981928663,
+        "y": 28.13638810834629,
+        "z": -3.689437507365728
       },
       "angles": {
-        "x": 12.46687593183777,
-        "y": -63.42162912262624,
+        "x": -3.733124068162257,
+        "y": -194.3716291226262,
         "z": 0
       },
-      "distance": 23.234888701952926,
+      "distance": 88.05585732305006,
       "fov": 75
     },
     "camera-1": {
@@ -69,6 +69,34 @@
       },
       "distance": 27.201812724141686,
       "fov": 75
+    },
+    "camera-3": {
+      "position": {
+        "x": -25.532909430483134,
+        "y": 36.37970365802112,
+        "z": 9.954143807077225
+      },
+      "angles": {
+        "x": 12.46687593183777,
+        "y": -63.42162912262624,
+        "z": 0
+      },
+      "distance": 23.234888701952926,
+      "fov": 75
+    },
+    "camera-4": {
+      "position": {
+        "x": -15.116054530778264,
+        "y": 23.72869904335319,
+        "z": 4.6944307976027275
+      },
+      "angles": {
+        "x": -9.205825660105814,
+        "y": 116.11070441800352,
+        "z": 0
+      },
+      "distance": 58.40820716096873,
+      "fov": 75
     }
   },
   "hotspots": [
@@ -77,18 +105,22 @@
       "title": "Hotspot 01",
       "description": "Ceremonic headwear of an ancient Thai goddes\nYear aproximately 1260 BC",
       "color": "#ffea00",
+      "type": "hotspot",
+      "targetUrl": "",
       "position": {
         "x": -21.359865949095024,
         "y": 44.16055020974811,
         "z": 13.489561541567264
       },
-      "cameraId": "camera-0"
+      "cameraId": "camera-3"
     },
     {
       "id": "1784108894000",
       "title": "Hotspot 02",
       "description": "Head of an ancient Thai goddes\nYear aproximately 1260 BC",
       "color": "#ff007b",
+      "type": "hotspot",
+      "targetUrl": "",
       "position": {
         "x": -0.9567878506900878,
         "y": 35.55493438445556,
@@ -101,12 +133,28 @@
       "title": "Hotspot 03",
       "description": "Butt of an ancient Thai goddes\nYear aproximately 1260 BC",
       "color": "#00ff04",
+      "type": "hotspot",
+      "targetUrl": "",
       "position": {
         "x": 21.89670747753603,
         "y": 10.219424703471818,
         "z": 9.945379833253265
       },
       "cameraId": "camera-2"
+    },
+    {
+      "id": "1787125025291",
+      "title": "Next Room",
+      "description": "",
+      "color": "#00e5ff",
+      "type": "portal",
+      "targetUrl": "\\projects\\00_3_figures\\00_3_figures.json",
+      "position": {
+        "x": -15.116054530778262,
+        "y": 23.728699043353185,
+        "z": 4.694430797602721
+      },
+      "cameraId": "camera-4"
     }
   ]
 }

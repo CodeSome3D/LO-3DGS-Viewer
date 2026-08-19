@@ -31,6 +31,10 @@ export class ProjectManager {
                 description: hotspot.description,
 
                 color: hotspot.color,
+                
+                type: hotspot.type || "hotspot",
+                
+                targetUrl: hotspot.targetUrl || "",
 
                 position: {
                     ...hotspot.position
@@ -202,68 +206,87 @@ export class ProjectManager {
         // Determine candidates for 3DGS model loading
         const candidates = [];
 
-        // 1. From sourceContext if string or File
-        let fileId = null;
-        if (typeof sourceContext === "string" && !sourceContext.startsWith("blob:") && !sourceContext.startsWith("data:")) {
-            const clean = sourceContext.replace(/\\/g, '/');
-            const lastPart = clean.split('/').pop();
-            fileId = lastPart.replace(/\.lo\.json$|\.json$/, '');
-        } else if (sourceContext && typeof sourceContext === "object" && sourceContext.name) {
-            const lastPart = sourceContext.name.replace(/\\/g, '/').split('/').pop();
-            fileId = lastPart.replace(/\.lo\.json$|\.json$/, '');
-        }
+        const normalizePath = (p) => {
+            if (!p || typeof p !== "string") return "";
+            return p.replace(/\\/g, '/').replace(/^\/+/, '').replace(/^\.\/+/, '').trim();
+        };
 
-        if (fileId) {
-            candidates.push(`./projects/${fileId}/${fileId}.sog`);
-            candidates.push(`./projects/${fileId}/scene.sog`);
-            candidates.push(`./${fileId}.sog`);
-        }
-
-        // 2. From projectcard.scene
+        // 1. From projectcard.scene (the authoritative scene path saved in the project)
         const scenePath = this.lo.projectcard.scene;
         if (scenePath && typeof scenePath === "string" && !scenePath.startsWith("blob:")) {
-            if (scenePath !== "./scene.sog" && scenePath !== "scene.sog") {
-                candidates.unshift(scenePath);
-                const sceneClean = scenePath.replace(/\\/g, '/').split('/').pop();
-                const sceneId = sceneClean.replace(/\.sog$|\.ply$/, '');
-                if (sceneId && sceneId !== fileId) {
-                    candidates.push(`./projects/${sceneId}/${sceneId}.sog`);
-                    candidates.push(`./${sceneClean}`);
-                }
-            } else {
-                candidates.push("./scene.sog");
+            const cleanScene = normalizePath(scenePath);
+            if (cleanScene && cleanScene !== "scene.sog" && cleanScene !== "scene.ply") {
+                candidates.push(`./${cleanScene}`);
+                candidates.push(cleanScene);
             }
         }
 
-        // 3. Known project aliases (e.g. Three Figures In Museum / museum -> 00_3_figures)
-        const projName = (this.lo.projectcard.name || "").toLowerCase();
-        const fileIdLower = (fileId || "").toLowerCase();
-        if (projName.includes("three") || projName.includes("museum") || fileIdLower.includes("museum") || fileIdLower.includes("three")) {
-            candidates.push("./projects/00_3_figures/00_3_figures.sog");
-            candidates.push("./index_0.sog");
-            candidates.push("./index_1.sog");
-        }
-        if (projName.includes("cactus") || projName.includes("kaktus") || fileIdLower.includes("cactus") || fileIdLower.includes("kaktus")) {
-            candidates.push("./projects/01_cactus/01_cactus.sog");
-            candidates.push("./projects/02_kaktus/02_kaktus.sog");
+        // 2. From sourceContext (the path or file from which project json was loaded)
+        if (typeof sourceContext === "string" && !sourceContext.startsWith("blob:") && !sourceContext.startsWith("data:")) {
+            const cleanCtx = normalizePath(sourceContext);
+            const parts = cleanCtx.split('/');
+            const filename = parts.pop() || "";
+            const fileId = filename.replace(/\.lo\.json$|\.json$/, '');
+            const folderName = parts.length > 0 ? parts[parts.length - 1] : "";
+
+            if (folderName && folderName !== 'projects') {
+                candidates.push(`./projects/${folderName}/${folderName}.sog`);
+                candidates.push(`./projects/${folderName}/${folderName}.ply`);
+                candidates.push(`./projects/${folderName}/${fileId}.sog`);
+                candidates.push(`./projects/${folderName}/${fileId}.ply`);
+                candidates.push(`./projects/${folderName}/scene.sog`);
+            }
+            if (fileId) {
+                candidates.push(`./projects/${fileId}/${fileId}.sog`);
+                candidates.push(`./projects/${fileId}/${fileId}.ply`);
+                candidates.push(`./projects/${fileId}/scene.sog`);
+                candidates.push(`./${fileId}.sog`);
+                candidates.push(`./${fileId}.ply`);
+            }
+        } else if (sourceContext && typeof sourceContext === "object" && sourceContext.name) {
+            const filename = sourceContext.name.replace(/\\/g, '/').split('/').pop() || "";
+            const fileId = filename.replace(/\.lo\.json$|\.json$/, '');
+            if (fileId) {
+                candidates.push(`./projects/${fileId}/${fileId}.sog`);
+                candidates.push(`./projects/${fileId}/${fileId}.ply`);
+                candidates.push(`./projects/${fileId}/scene.sog`);
+            }
         }
 
-        // Deduplicate candidates
+        // 3. Fallback to project name
+        const projName = (this.lo.projectcard.name || "").toLowerCase();
+        if (projName.includes("three") || projName.includes("museum")) {
+            candidates.push("./projects/00_3_figures/00_3_figures.sog");
+        } else if (projName.includes("cactus") || projName.includes("kaktus")) {
+            candidates.push("./projects/01_cactus/01_cactus.sog");
+            candidates.push("./projects/02_kaktus/02_kaktus.sog");
+        } else if (projName.includes("figure")) {
+            candidates.push("./projects/03_figure/03_figure.sog");
+        }
+
+        // Clean & Deduplicate candidates
         const uniqueCandidates = Array.from(new Set(candidates.filter(Boolean)));
+        console.log("[ProjectManager] Splat candidates for project:", uniqueCandidates);
 
         // Check if an existing 3DGS model was already present in the scene
         const existingEntities = this.lo.viewer?.global?.app?.root?.find((node) => node.name === 'gsplat') || [];
         const hasExistingModel = existingEntities.length > 0;
-        const currentUrl = this.lo.viewer?.global?.config?.contentUrl;
+        const currentLoaded = this.lo.currentLoadedSplatUrl || this.lo.viewer?.global?.config?.contentUrl;
 
         let loadedSplat = false;
 
-        if (hasExistingModel && currentUrl) {
-            const normalizedCurrent = currentUrl.replace(/^\.\//, '');
-            if (uniqueCandidates.some(c => c.replace(/^\.\//, '') === normalizedCurrent || currentUrl.endsWith(c.replace(/^\.\//, '')))) {
-                console.log(`[ProjectManager] Skipping load, model already active: ${currentUrl}`);
-                loadedSplat = true;
-            }
+        const normalizeSplatUrl = (u) => {
+            if (!u) return "";
+            return String(u).replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '').toLowerCase();
+        };
+
+        const currentNorm = normalizeSplatUrl(currentLoaded);
+        const primaryTargetNorm = uniqueCandidates.length > 0 ? normalizeSplatUrl(uniqueCandidates[0]) : "";
+
+        // Only skip if the first/primary valid candidate is already the active model
+        if (hasExistingModel && currentNorm && primaryTargetNorm && currentNorm === primaryTargetNorm) {
+            console.log(`[ProjectManager] Splat model already active: ${currentLoaded}`);
+            loadedSplat = true;
         }
 
         if (!loadedSplat) {
@@ -273,6 +296,7 @@ export class ProjectManager {
                     const res = await this.lo.loadGsplat(candidate);
                     if (res) {
                         loadedSplat = true;
+                        this.lo.currentLoadedSplatUrl = candidate;
                         if (this.lo.isEditor()) {
                             this.lo.uiManager?.showToast("✓ 3DGS loaded successfully");
                         }
@@ -284,14 +308,17 @@ export class ProjectManager {
             }
         }
 
-        if (!loadedSplat && !hasExistingModel) {
+        if (!loadedSplat) {
+            if (hasExistingModel) {
+                console.warn("[ProjectManager] No valid 3DGS model found for this project, unloading previous model");
+                this.lo.unloadGsplat?.();
+                this.lo.currentLoadedSplatUrl = null;
+            }
             if (this.lo.isEditor()) {
                 this.lo.uiManager?.showToast("⚠️ Project loaded. Use 'Upload 3DGS' to attach model.");
             }
-        } else if (!loadedSplat && hasExistingModel) {
-            if (this.lo.isEditor()) {
-                this.lo.uiManager?.showToast("✓ Project hotspots and cameras loaded");
-            }
+        } else if (hasExistingModel && this.lo.isEditor()) {
+            this.lo.uiManager?.showToast("✓ Project hotspots and cameras loaded");
         }
 
         const cameraKeys = Object.keys(this.lo.cameras);
@@ -307,10 +334,45 @@ export class ProjectManager {
             this.lo.viewer.global.app.renderNextFrame = true;
         }
 
+        // Re-render hotspots after a short delay to ensure the camera matrix is fully updated
+        setTimeout(() => {
+            this.lo.renderHotspots();
+        }, 100);
+
+        if (this.lo.isViewer()) {
+            if (this.lo.setTheme && this.lo.projectcard.theme) {
+                this.lo.setTheme(this.lo.projectcard.theme);
+            }
+
+            if (this.lo.projectcard.autospinOnLoad) {
+                this.lo.cameraManager?.startAutospin();
+            } else {
+                this.lo.cameraManager?.stopAutospin?.();
+            }
+
+            if (this.lo.tourManager) {
+                this.lo.tourManager.currentHotspotIndex = -1;
+            }
+            this.lo.tourUIManager?.update(null);
+
+            if (typeof window !== "undefined" && typeof window.ensureInitialViewButton === "function") {
+                window.ensureInitialViewButton();
+            }
+        }
+
         if (this.lo.isEditor()) {
 
             this.lo.uiManager?.refresh();
         }
+    }
+
+    extractProjectSlug(rawUrl) {
+        if (!rawUrl) return "";
+        const clean = String(rawUrl).replace(/\\/g, '/').trim();
+        const projMatch = clean.match(/projects\/([^/]+)/);
+        if (projMatch) return projMatch[1];
+        const file = clean.split('/').pop();
+        return file.replace(/\.(lo\.)?json$/i, '');
     }
 
     save(filename = null) {
@@ -353,12 +415,22 @@ export class ProjectManager {
         reader.readAsText(file);
     }
 
-    async loadFromURL(url) {
+    async loadFromURL(url, updateUrl = true) {
+        if (!url) return;
 
-        let fetchUrl = url;
-        if (!fetchUrl.includes('/') && !fetchUrl.endsWith('.json')) {
-            fetchUrl = `./projects/${url}/${url}.json`;
+        let clean = String(url).replace(/\\/g, '/').trim();
+        if (clean.startsWith('/')) {
+            clean = '.' + clean;
         }
+
+        let fetchUrl = clean;
+        if (!fetchUrl.includes('/') && !fetchUrl.endsWith('.json')) {
+            fetchUrl = `./projects/${clean}/${clean}.json`;
+        } else if (!fetchUrl.startsWith('./') && !fetchUrl.startsWith('http')) {
+            fetchUrl = './' + fetchUrl;
+        }
+
+        console.log(`[ProjectManager] Loading project from URL: ${fetchUrl}`);
 
         const response =
             await fetch(fetchUrl);
@@ -366,14 +438,27 @@ export class ProjectManager {
         if (!response.ok) {
 
             throw new Error(
-                `Failed to load project: ${response.status}`
+                `Failed to load project: ${response.status} from ${fetchUrl}`
             );
         }
 
         const json =
             await response.text();
 
-        await this.import(json, url);
+        await this.import(json, fetchUrl);
+
+        if (updateUrl && typeof window !== "undefined" && window.location && window.history?.pushState) {
+            try {
+                const slug = this.extractProjectSlug(fetchUrl);
+                if (slug) {
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.set("project", slug);
+                    window.history.pushState({ project: slug }, "", currentUrl.toString());
+                }
+            } catch (err) {
+                console.warn("[ProjectManager] Could not update address bar:", err);
+            }
+        }
     }
 
     setName(name) {

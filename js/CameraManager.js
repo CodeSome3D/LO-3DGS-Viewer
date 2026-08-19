@@ -44,10 +44,19 @@ export class CameraManager {
         const controller = this.getOrbitController();
         const orbit = this.lo.getController();
 
-        //Camera speed
-        controller.rotateDamping = 0.9971;
-        controller.moveDamping = 0.9971;
-        controller.zoomDamping = 0.9971;
+        // Calculate shortest path for angles
+        const shortestAngle = (cur, target) => {
+            let diff = (target - cur) % 360;
+            if (diff > 180) diff -= 360;
+            if (diff < -180) diff += 360;
+            return cur + diff;
+        };
+
+        const targetAngles = {
+            x: shortestAngle(controller._rootPose.angles.x, camera.angles.x),
+            y: shortestAngle(controller._rootPose.angles.y, camera.angles.y),
+            z: shortestAngle(controller._rootPose.angles.z, camera.angles.z)
+        };
 
         controller._targetRootPose.position.set(
             camera.position.x,
@@ -56,9 +65,9 @@ export class CameraManager {
         );
 
         controller._targetRootPose.angles.set(
-            camera.angles.x,
-            camera.angles.y,
-            camera.angles.z
+            targetAngles.x,
+            targetAngles.y,
+            targetAngles.z
         );
 
         controller._targetChildPose.position.z = camera.distance;
@@ -71,18 +80,59 @@ export class CameraManager {
             controller._childPose.position.copy(controller._targetChildPose.position);
             this.lo.viewer?.wake?.(4);
         } else {
-            // wake for at least 120 frames for a smooth transition
-            this.lo.viewer?.wake?.(120);
+            // Cancel previous tween if any
+            if (this._tweenInterval) {
+                clearInterval(this._tweenInterval);
+                this._tweenInterval = null;
+            }
+
+            // Capture start state
+            const startPos = controller._rootPose.position.clone();
+            const startAng = controller._rootPose.angles.clone();
+            const startDist = controller._childPose.position.z;
+
+            // Capture final state
+            const finalPos = controller._targetRootPose.position.clone();
+            const finalAng = controller._targetRootPose.angles.clone();
+            const finalDist = controller._targetChildPose.position.z;
+
+            // CRUCIAL FIX: Reset target poses back to start state immediately so the spring physics doesn't jump before the interval starts!
+            controller._targetRootPose.position.copy(startPos);
+            controller._targetRootPose.angles.copy(startAng);
+            controller._targetChildPose.position.z = startDist;
             
-            // clear previous interval if any
-            if (this._wakeInterval) clearInterval(this._wakeInterval);
-            this._wakeInterval = setInterval(() => {
-                this.lo.viewer?.wake?.(2);
-                const dPos = controller._rootPose.position.distance(controller._targetRootPose.position);
-                if (dPos < 0.001) {
-                    clearInterval(this._wakeInterval);
+            const duration = 1500; // 1.5 seconds
+            const startTime = performance.now();
+
+            // Ease in-out cubic function
+            const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+            this.lo.viewer?.wake?.(duration / 1000 * 60 + 10);
+            
+            this._tweenInterval = setInterval(() => {
+                const now = performance.now();
+                let t = (now - startTime) / duration;
+                
+                if (t >= 1) {
+                    t = 1;
+                    clearInterval(this._tweenInterval);
+                    this._tweenInterval = null;
                 }
-            }, 33);
+
+                const eased = easeInOutCubic(t);
+
+                // Interpolate
+                controller._rootPose.position.lerp(startPos, finalPos, eased);
+                controller._rootPose.angles.lerp(startAng, finalAng, eased);
+                controller._childPose.position.z = startDist + (finalDist - startDist) * eased;
+
+                // Sync target to prevent spring physics from fighting the tween
+                controller._targetRootPose.position.copy(controller._rootPose.position);
+                controller._targetRootPose.angles.copy(controller._rootPose.angles);
+                controller._targetChildPose.position.copy(controller._childPose.position);
+
+                this.lo.viewer?.wake?.(2);
+            }, 16);
         }
     }
 

@@ -117,6 +117,9 @@ window.lo = {
         
         if (viewer?.global?.config?.contentUrl) {
             this.projectcard.scene = viewer.global.config.contentUrl;
+            this.currentLoadedSplatUrl = viewer.global.config.contentUrl;
+        } else {
+            this.currentLoadedSplatUrl = null;
         }
 
         this.viewer.global.app.on("postrender", () => {
@@ -370,20 +373,36 @@ window.lo = {
         return this.projectManager.loadFromURL(url);
     },
 
-    loadGsplat(urlOrFile, progressCallback) {
+    async loadGsplat(urlOrFile, progressCallback) {
         if (!this.viewer?.loadGsplat) {
             console.warn("Viewer is not initialized yet.");
             return null;
         }
         if (typeof urlOrFile === 'string') {
             this.projectcard.scene = urlOrFile;
+            this.currentLoadedSplatUrl = urlOrFile;
+            if (this.viewer?.global?.config) {
+                this.viewer.global.config.contentUrl = urlOrFile;
+            }
         } else if (urlOrFile instanceof File) {
             this.projectcard.scene = urlOrFile.name;
+            this.currentLoadedSplatUrl = urlOrFile.name;
         }
-        return this.viewer.loadGsplat(urlOrFile, progressCallback);
+        const res = await this.viewer.loadGsplat(urlOrFile, progressCallback);
+        if (res && typeof urlOrFile === 'string') {
+            this.currentLoadedSplatUrl = urlOrFile;
+            if (this.viewer?.global?.config) {
+                this.viewer.global.config.contentUrl = urlOrFile;
+            }
+        }
+        return res;
     },
 
     unloadGsplat() {
+        this.currentLoadedSplatUrl = null;
+        if (this.viewer?.global?.config) {
+            this.viewer.global.config.contentUrl = "";
+        }
         if (!this.viewer?.unloadGsplat) {
             return;
         }
@@ -625,51 +644,56 @@ function init() {
 
         window.lo.tourUIManager.create();
 
+        window.ensureInitialViewButton = () => {
+            let initialViewBtn = document.getElementById("lo-initial-view-btn");
+            if (!window.lo.cameras["camera-0"]) {
+                if (initialViewBtn) initialViewBtn.style.display = "none";
+                return;
+            }
+            if (!initialViewBtn) {
+                initialViewBtn = document.createElement("button");
+                initialViewBtn.id = "lo-initial-view-btn";
+                initialViewBtn.textContent = "Initial View";
+                initialViewBtn.style.position = "absolute";
+                initialViewBtn.style.bottom = "20px";
+                initialViewBtn.style.left = "50%";
+                initialViewBtn.style.transform = "translateX(-50%)";
+                initialViewBtn.style.padding = "8px 24px";
+                initialViewBtn.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+                initialViewBtn.style.color = "white";
+                initialViewBtn.style.border = "1px solid rgba(255, 255, 255, 0.2)";
+                initialViewBtn.style.borderRadius = "20px";
+                initialViewBtn.style.fontFamily = "sans-serif";
+                initialViewBtn.style.fontSize = "14px";
+                initialViewBtn.style.cursor = "pointer";
+                initialViewBtn.style.zIndex = "1000";
+                initialViewBtn.style.backdropFilter = "blur(4px)";
+                initialViewBtn.style.transition = "background-color 0.2s";
+                
+                initialViewBtn.onmouseenter = () => {
+                    initialViewBtn.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+                };
+                initialViewBtn.onmouseleave = () => {
+                    initialViewBtn.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+                };
+                
+                initialViewBtn.onclick = () => {
+                    window.lo.cameraManager.goTo("camera-0");
+                    window.lo.tourManager.currentHotspotIndex = -1;
+                    window.lo.tourUIManager?.update(null); // Hide tour UI
+                };
+                
+                document.body.appendChild(initialViewBtn);
+            } else {
+                initialViewBtn.style.display = "block";
+            }
+        };
+
         if (projectUrl) {
             window.lo
                 .loadProjectFromURL(projectUrl)
                 .then(() => {
-                    window.lo.setTheme(window.lo.projectcard.theme);
-
-                    if (window.lo.projectcard.autospinOnLoad) {
-                        window.lo.cameraManager.startAutospin();
-                    }
-
-                    if (window.lo.cameras["camera-0"]) {
-                        const initialViewBtn = document.createElement("button");
-                        initialViewBtn.id = "lo-initial-view-btn";
-                        initialViewBtn.textContent = "Initial View";
-                        initialViewBtn.style.position = "absolute";
-                        initialViewBtn.style.bottom = "20px";
-                        initialViewBtn.style.left = "50%";
-                        initialViewBtn.style.transform = "translateX(-50%)";
-                        initialViewBtn.style.padding = "8px 24px";
-                        initialViewBtn.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-                        initialViewBtn.style.color = "white";
-                        initialViewBtn.style.border = "1px solid rgba(255, 255, 255, 0.2)";
-                        initialViewBtn.style.borderRadius = "20px";
-                        initialViewBtn.style.fontFamily = "sans-serif";
-                        initialViewBtn.style.fontSize = "14px";
-                        initialViewBtn.style.cursor = "pointer";
-                        initialViewBtn.style.zIndex = "1000";
-                        initialViewBtn.style.backdropFilter = "blur(4px)";
-                        initialViewBtn.style.transition = "background-color 0.2s";
-                        
-                        initialViewBtn.onmouseenter = () => {
-                            initialViewBtn.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-                        };
-                        initialViewBtn.onmouseleave = () => {
-                            initialViewBtn.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-                        };
-                        
-                        initialViewBtn.onclick = () => {
-                            window.lo.cameraManager.goTo("camera-0");
-                            window.lo.tourManager.currentHotspotIndex = -1;
-                            window.lo.tourUIManager?.update(null); // Hide tour UI
-                        };
-                        
-                        document.body.appendChild(initialViewBtn);
-                    }
+                    window.ensureInitialViewButton();
                 })
                 .catch(error => {
                     console.error(
@@ -682,6 +706,15 @@ function init() {
                 window.lo.cameraManager.startAutospin();
             }
         }
+
+        window.addEventListener("popstate", () => {
+            const p = new URLSearchParams(window.location.search).get("project");
+            if (p) {
+                window.lo.loadProjectFromURL(p, false).catch(e => {
+                    console.error("Popstate project load failed:", e);
+                });
+            }
+        });
 
         const logo =
             document.getElementById("viewerBranding");

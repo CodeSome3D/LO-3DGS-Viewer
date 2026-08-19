@@ -212,10 +212,50 @@ input[type="text"]:focus{
 
 .lo-hotspot-marker:hover .lo-hotspot-dot{
     transform:scale(1.18);
-    filter:brightness(1.15);
+    filter:brightness(1.1);
     box-shadow:
-        0 0 6px rgba(255,255,255,.45),
-        0 0 12px rgba(0,170,255,.35);
+        0 0 0 2px rgba(0,0,0,.35),
+        0 4px 14px rgba(0,0,0,.55);
+}
+
+@keyframes lo-portal-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 6px 1px rgba(0, 229, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+    50% {
+        transform: scale(1.12);
+        box-shadow: 0 0 16px 4px rgba(0, 229, 255, 0.75), 0 2px 12px rgba(0, 0, 0, 0.6);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 6px 1px rgba(0, 229, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+}
+
+.lo-portal-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 229, 255, 0.85);
+    background: rgba(4, 24, 38, 0.8) !important;
+    backdrop-filter: blur(4px);
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.4), 0 2px 8px rgba(0, 0, 0, 0.5);
+    animation: lo-portal-pulse 2.4s infinite ease-in-out;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    user-select: none;
+    line-height: 1;
+}
+
+.lo-hotspot-marker:hover .lo-portal-dot {
+    transform: scale(1.22);
+    border-color: #00e5ff;
+    box-shadow: 0 0 18px 6px rgba(0, 229, 255, 0.9);
 }
 
 .lo-hotspot-label{

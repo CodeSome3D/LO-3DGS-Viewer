@@ -105,20 +105,21 @@ export class TourUIManager {
             return;
         }
 
-        if (!hotspot) {
+        if (!hotspot || hotspot.type === "portal") {
 
             card.classList.remove("visible");
 
             return;
         }
 
+        const tourHotspots = (this.lo.hotspots || []).filter(h => h.type !== "portal");
         const index =
-            this.lo.hotspots.indexOf(hotspot);
+            tourHotspots.indexOf(hotspot);
 
         if (counter && index !== -1) {
 
             counter.textContent =
-                `${index + 1} / ${this.lo.hotspots.length}`;
+                `${index + 1} / ${tourHotspots.length}`;
         }
 
         card.classList.remove("visible");

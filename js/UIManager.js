@@ -229,12 +229,28 @@ export class UIManager {
                         <button
                             id="lo-add-hotspot"
                             class="lo-button lo-toolbar-button">
-                            + Add
+                            + Add Hotspot
                         </button>
 
                     </div>
 
                 <div id="lo-hotspot-list"></div>
+            </div>
+
+            <div class="lo-section">
+                <h2>Portals 🌀</h2>
+
+                    <div class="lo-toolbar">
+
+                        <button
+                            id="lo-add-portal"
+                            class="lo-button lo-toolbar-button">
+                            + Add Portal
+                        </button>
+
+                    </div>
+
+                <div id="lo-portal-list"></div>
             </div>
 
             <div class="lo-section">
@@ -287,17 +303,27 @@ export class UIManager {
         }
 
         const addButton = document.getElementById("lo-add-hotspot");
+        const addPortalBtn = document.getElementById("lo-add-portal");
 
-        addButton.onclick = () => {
+        if (addButton) {
+            addButton.onclick = () => {
+                this.lo.waitingForHotspotPick = "hotspot";
+                addPortalBtn?.classList.remove("active");
+                addButton.classList.add("active");
+                this.lo.canvas.style.cursor = "crosshair";
+                this.showToast("Click the model to place a hotspot.");
+            };
+        }
 
-            this.lo.waitingForHotspotPick = true;
-
-            addButton.classList.add("active");
-
-            this.lo.canvas.style.cursor = "crosshair";
-
-            this.showToast("Click the model to place a hotspot.");
-        };
+        if (addPortalBtn) {
+            addPortalBtn.onclick = () => {
+                this.lo.waitingForHotspotPick = "portal";
+                addButton?.classList.remove("active");
+                addPortalBtn.classList.add("active");
+                this.lo.canvas.style.cursor = "crosshair";
+                this.showToast("Click the model to place a portal 🌀.");
+            };
+        }
 
         const type = document.getElementById("lo-bg-type");
         const picker = document.getElementById("lo-bg-picker");
@@ -742,8 +768,11 @@ export class UIManager {
 
     refreshHotspotList() {
 
-        const list =
+        const hotspotList =
             document.getElementById("lo-hotspot-list");
+
+        const portalList =
+            document.getElementById("lo-portal-list");
 
         const updateCameraButton =
             document.getElementById("lo-update-camera");
@@ -754,9 +783,10 @@ export class UIManager {
                 !this.lo.selectedHotspot;
         }
 
-        list.innerHTML = "";
+        if (hotspotList) hotspotList.innerHTML = "";
+        if (portalList) portalList.innerHTML = "";
 
-        for (const hotspot of this.lo.hotspots) {
+        const renderItem = (hotspot, container, isPortal) => {
 
             const row =
                 document.createElement("div");
@@ -772,7 +802,9 @@ export class UIManager {
                 document.createElement("span");
 
             title.textContent =
-                hotspot.title || "(Untitled)";
+                isPortal
+                    ? `🌀 ${hotspot.title || "(Untitled Portal)"}`
+                    : (hotspot.title || "(Untitled)");
 
             const controls =
                 document.createElement("div");
@@ -894,7 +926,30 @@ export class UIManager {
                 }
             );
 
-            list.appendChild(row);
+            container.appendChild(row);
+        };
+
+        const regularHotspots = this.lo.hotspots.filter(h => h.type !== "portal");
+        const portals = this.lo.hotspots.filter(h => h.type === "portal");
+
+        if (hotspotList) {
+            if (regularHotspots.length === 0) {
+                hotspotList.innerHTML = `<div class="lo-empty-state" style="padding: 8px 0; font-size: 12px;">No hotspots added</div>`;
+            } else {
+                for (const hotspot of regularHotspots) {
+                    renderItem(hotspot, hotspotList, false);
+                }
+            }
+        }
+
+        if (portalList) {
+            if (portals.length === 0) {
+                portalList.innerHTML = `<div class="lo-empty-state" style="padding: 8px 0; font-size: 12px;">No portals added</div>`;
+            } else {
+                for (const portal of portals) {
+                    renderItem(portal, portalList, true);
+                }
+            }
         }
     }
 
@@ -920,6 +975,15 @@ export class UIManager {
 
     properties.innerHTML = `
         <div class="lo-property-card">
+            
+            <div class="lo-section-title">
+                Type
+            </div>
+            
+            <select id="lo-hotspot-type" style="width: 100%; margin-bottom: 12px;">
+                <option value="hotspot" ${this.lo.selectedHotspot.type !== "portal" ? "selected" : ""}>Hotspot</option>
+                <option value="portal" ${this.lo.selectedHotspot.type === "portal" ? "selected" : ""}>Portal</option>
+            </select>
 
             <div class="lo-section-title">
                 Title
@@ -936,10 +1000,22 @@ export class UIManager {
                 <input
                     id="lo-hotspot-color"
                     type="color"
-                    value="${this.lo.selectedHotspot.color || "#ff7a00"}">
+                    value="${this.lo.selectedHotspot.color || (this.lo.selectedHotspot.type === 'portal' ? '#00e5ff' : '#ff7a00')}">
 
             </div>
 
+            ${this.lo.selectedHotspot.type === "portal" ? `
+                <div class="lo-section-title">
+                    Target Project URL
+                </div>
+
+                <input
+                    id="lo-hotspot-target-url"
+                    type="text"
+                    placeholder="./projects/other/other.lo.json"
+                    value="${this.lo.selectedHotspot.targetUrl || ""}"
+                    style="width: 100%; margin-bottom: 12px;">
+            ` : `
                 <div class="lo-section-title">
                     Description
                 </div>
@@ -947,15 +1023,10 @@ export class UIManager {
                 <textarea
                     id="lo-hotspot-description"
                     rows="5">${this.lo.selectedHotspot.description || ""}</textarea>
-
-                <div class="lo-section-title">
-                    Color
-                </div>
-
-
+            `}
 
             <div class="lo-section-title">
-                cardrmation
+                Information
             </div>
 
             <div class="lo-property-card">
@@ -1022,6 +1093,30 @@ export class UIManager {
 
         title.onblur = () => {
         };
+
+        const type = document.getElementById("lo-hotspot-type");
+        if (type) {
+            type.onchange = () => {
+                const hotspot = this.lo.selectedHotspot;
+                if (!hotspot) return;
+                hotspot.type = type.value;
+                if (hotspot.type === "portal" && !hotspot.color) {
+                    hotspot.color = "#00e5ff"; // Default portal color
+                }
+                this.refreshProperties();
+                this.refreshHotspotList();
+                this.lo.renderHotspots(); // Re-render to apply portal classes
+            };
+        }
+
+        const targetUrl = document.getElementById("lo-hotspot-target-url");
+        if (targetUrl) {
+            targetUrl.oninput = () => {
+                const hotspot = this.lo.selectedHotspot;
+                if (!hotspot) return;
+                hotspot.targetUrl = targetUrl.value.replace(/\\/g, '/');
+            };
+        }
 
         const hotspotColor =
             document.getElementById("lo-hotspot-color");

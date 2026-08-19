@@ -5,24 +5,30 @@ export class TourManager {
         this.currentHotspotIndex = -1;
     }
 
+    get tourHotspots() {
+        return (this.lo.hotspots || []).filter(h => h.type !== "portal");
+    }
+
     start() {
 
-        if (this.lo.hotspots.length === 0) {
+        const list = this.tourHotspots;
+        if (list.length === 0) {
             return;
         }
 
         this.currentHotspotIndex = 0;
 
         const hotspot =
-            this.lo.hotspots[0];
+            list[0];
 
         this.goTo(hotspot);
     }
 
     setCurrent(hotspotId) {
 
+        const list = this.tourHotspots;
         const index =
-            this.lo.hotspots.findIndex(
+            list.findIndex(
                 hotspot =>
                     hotspot.id === hotspotId
             );
@@ -36,7 +42,8 @@ export class TourManager {
 
     next() {
 
-        if (this.lo.hotspots.length === 0) {
+        const list = this.tourHotspots;
+        if (list.length === 0) {
             return;
         }
 
@@ -44,13 +51,13 @@ export class TourManager {
 
         if (
             this.currentHotspotIndex >=
-            this.lo.hotspots.length
+            list.length
         ) {
             this.currentHotspotIndex = 0;
         }
 
         const hotspot =
-            this.lo.hotspots[
+            list[
                 this.currentHotspotIndex
             ];
 
@@ -59,7 +66,8 @@ export class TourManager {
 
     previous() {
 
-        if (this.lo.hotspots.length === 0) {
+        const list = this.tourHotspots;
+        if (list.length === 0) {
             return;
         }
 
@@ -68,11 +76,11 @@ export class TourManager {
         if (this.currentHotspotIndex < 0) {
 
             this.currentHotspotIndex =
-                this.lo.hotspots.length - 1;
+                list.length - 1;
         }
 
         const hotspot =
-            this.lo.hotspots[
+            list[
                 this.currentHotspotIndex
             ];
 

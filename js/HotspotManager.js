@@ -5,7 +5,7 @@ export class HotspotManager {
         this.element = null;
     }
 
-    create(title = "") {
+    create(title = "", type = "hotspot") {
 
         if (!this.lo.lastPickedPoint) {
             console.warn("Nothing picked.");
@@ -16,15 +16,19 @@ export class HotspotManager {
 
         this.lo.cameras[cameraId] = this.lo.cameraManager.capture();
 
+        const isPortal = type === "portal";
+
         const hotspot = {
 
             id: crypto.randomUUID
                 ? crypto.randomUUID()
                 : Date.now().toString(),
 
-            title,
+            title: title || (isPortal ? "New Portal" : "New Hotspot"),
             description: "",
-            color: "#ff7a00",
+            color: isPortal ? "#00e5ff" : "#ff7a00",
+            type: isPortal ? "portal" : "hotspot",
+            targetUrl: "",
 
             position: { ...this.lo.lastPickedPoint },
 
@@ -150,6 +154,10 @@ export class HotspotManager {
 
             const marker = document.createElement("div");
             marker.className = "lo-hotspot-dot";
+            if (hotspot.type === "portal") {
+                marker.classList.add("lo-portal-dot");
+                marker.textContent = "🌀";
+            }
 
             marker.classList.toggle(
                 "selected",
@@ -174,6 +182,19 @@ export class HotspotManager {
 
                     this.select(hotspot.id);
 
+                    return;
+                }
+
+                if (hotspot.type === "portal") {
+                    if (hotspot.targetUrl) {
+                        this.lo.uiManager?.showToast("Loading portal...");
+                        this.lo.projectManager.loadFromURL(hotspot.targetUrl).catch(e => {
+                            console.error("Failed to load portal:", e);
+                            this.lo.uiManager?.showToast("❌ Failed to load portal project");
+                        });
+                    } else {
+                        console.warn("Portal has no target URL configured.");
+                    }
                     return;
                 }
 
@@ -247,8 +268,18 @@ export class HotspotManager {
                     hotspot === this.lo.selectedHotspot
                 );
 
-                marker.style.background =
-                    hotspot.color || "#ff7a00";
+                if (hotspot.type === "portal") {
+                    marker.classList.add("lo-portal-dot");
+                    marker.textContent = "🌀";
+                    marker.style.background = "";
+                } else {
+                    marker.classList.remove("lo-portal-dot");
+                    if (marker.textContent === "🌀") {
+                        marker.textContent = "";
+                    }
+                    marker.style.background =
+                        hotspot.color || "#ff7a00";
+                }
             }
 
             const label =

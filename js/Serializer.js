@@ -43,8 +43,47 @@ export class Serializer {
             rotation: 0
         };
 
-        project.cameras ??= {};
-        project.hotspots ??= [];
+        // Validate cameras
+        if (!project.cameras || typeof project.cameras !== 'object' || Array.isArray(project.cameras)) {
+            project.cameras = {};
+        } else {
+            for (const [id, cam] of Object.entries(project.cameras)) {
+                if (!cam || typeof cam !== 'object') {
+                    delete project.cameras[id];
+                    continue;
+                }
+                cam.position = cam.position && typeof cam.position === 'object' ? cam.position : { x: 0, y: 0, z: 0 };
+                cam.position.x = Number(cam.position.x) || 0;
+                cam.position.y = Number(cam.position.y) || 0;
+                cam.position.z = Number(cam.position.z) || 0;
+
+                cam.angles = cam.angles && typeof cam.angles === 'object' ? cam.angles : { x: 0, y: 0, z: 0 };
+                cam.angles.x = Number(cam.angles.x) || 0;
+                cam.angles.y = Number(cam.angles.y) || 0;
+                cam.angles.z = Number(cam.angles.z) || 0;
+
+                cam.distance = Number(cam.distance) || 5;
+                cam.fov = Number(cam.fov) || 75;
+            }
+        }
+
+        // Validate hotspots
+        if (!Array.isArray(project.hotspots)) {
+            project.hotspots = [];
+        } else {
+            project.hotspots = project.hotspots.filter(h => h && typeof h === 'object' && h.id).map(h => {
+                h.position = h.position && typeof h.position === 'object' ? h.position : { x: 0, y: 0, z: 0 };
+                h.position.x = Number(h.position.x) || 0;
+                h.position.y = Number(h.position.y) || 0;
+                h.position.z = Number(h.position.z) || 0;
+                
+                h.title = typeof h.title === 'string' ? h.title : "New Hotspot";
+                h.description = typeof h.description === 'string' ? h.description : "";
+                h.color = typeof h.color === 'string' ? h.color : "#FFFFFF";
+                
+                return h;
+            });
+        }
 
         return project;
 
