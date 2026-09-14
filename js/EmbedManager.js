@@ -162,10 +162,38 @@ export class EmbedManager {
             </div>
         `;
 
+        // Prevent 3D canvas from receiving pointer events through the modal.
+        // NOTE: Do NOT stop touchmove on the card — that would break the modal's own scroll.
+        const card = modal.querySelector(".lo-modal-card");
+        if (card) {
+            card.addEventListener("pointerdown", (e) => e.stopPropagation());
+            card.addEventListener("touchstart", (e) => e.stopPropagation(), { passive: true });
+        }
+
+        // Block canvas orbit-control from starting when the user touches the backdrop.
+        modal.addEventListener("touchstart", (e) => {
+            e.preventDefault();  // Blocks synthesized pointer events to canvas
+            e.stopPropagation();
+        }, { passive: false });
+        modal.addEventListener("touchmove", (e) => {
+            // Allow touchmove to propagate within modal (for scrolling body),
+            // but prevent it from reaching the 3D canvas.
+            e.stopPropagation();
+        }, { passive: true });
+
         // Event listeners
         const closeBtn = modal.querySelector("#lo-embed-close");
         closeBtn.onclick = () => this.closeModal();
 
+        // Close modal when tapping/clicking the backdrop (outside the card).
+        // Use touchend for mobile because we call preventDefault on touchstart
+        // (which blocks the synthesized click event on touch devices).
+        modal.addEventListener("touchend", (e) => {
+            if (e.target === modal) {
+                e.preventDefault();
+                this.closeModal();
+            }
+        }, { passive: false });
         modal.onclick = (e) => {
             if (e.target === modal) this.closeModal();
         };
@@ -250,6 +278,6 @@ export class EmbedManager {
 
         if (directUrlInput) directUrlInput.value = directUrl;
         if (snippetTextarea) snippetTextarea.value = this.getIframeSnippet();
-        if (qrBox) qrBox.innerHTML = QRCodeGenerator.generateSVG(directUrl, 128, 2);
+        if (qrBox) qrBox.innerHTML = QRCodeGenerator.generateSVG(directUrl, 120, 2);
     }
 }

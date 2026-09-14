@@ -775,41 +775,88 @@ function init() {
             const toolbar = document.createElement("div");
             toolbar.id = "lo-viewer-toolbar";
 
+            const bindBtn = (btn, onClick) => {
+                // ── Mobile (touch): use touchend so we can call preventDefault(),
+                // which blocks the synthesized click AND stops the 3D canvas from
+                // receiving a pointer event for the same tap.
+                let _pendingTouch = false;
+
+                btn.addEventListener("touchstart", (e) => {
+                    _pendingTouch = true;
+                    // Stop bubbling so canvas orbit-controls don't start a gesture.
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, { passive: true });
+
+                btn.addEventListener("touchend", (e) => {
+                    if (!_pendingTouch) return;
+                    _pendingTouch = false;
+                    // Non-passive: we CAN call preventDefault here.
+                    // This prevents the browser from synthesising a click / pointerup
+                    // that the canvas might pick up.
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+
+                    // Confirm the finger lifted roughly over the button.
+                    if (e.changedTouches && e.changedTouches.length > 0) {
+                        const t = e.changedTouches[0];
+                        const r = btn.getBoundingClientRect();
+                        const pad = 12;
+                        if (t.clientX >= r.left - pad && t.clientX <= r.right + pad &&
+                            t.clientY >= r.top - pad && t.clientY <= r.bottom + pad) {
+                            onClick();
+                        }
+                    } else {
+                        onClick();
+                    }
+                }, { passive: false });
+
+                btn.addEventListener("touchcancel", () => { _pendingTouch = false; }, { passive: true });
+
+                // ── Desktop: standard click handler (no touch involved).
+                btn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    onClick();
+                });
+
+                // Prevent canvas orbit-controls from starting on pointerdown in the button area.
+                btn.addEventListener("pointerdown", (e) => {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                });
+            };
+
             const shareBtn = document.createElement("button");
             shareBtn.id = "lo-viewer-share-btn";
             shareBtn.className = "lo-viewer-action-btn";
             shareBtn.innerHTML = "🔗";
             shareBtn.title = "Share & Embed Tour";
-            shareBtn.onclick = (e) => {
-                e.stopPropagation();
-                window.lo.embedManager?.openModal();
-            };
+            bindBtn(shareBtn, () => window.lo.embedManager?.openModal());
 
             const vrBtn = document.createElement("button");
             vrBtn.id = "lo-viewer-vr-btn";
             vrBtn.className = "lo-viewer-action-btn";
             vrBtn.innerHTML = "🥽";
             vrBtn.title = "VR / Motion Gyroscope";
-            vrBtn.onclick = (e) => {
-                e.stopPropagation();
-                window.lo.xrManager?.toggleVR();
-            };
+            bindBtn(vrBtn, () => window.lo.xrManager?.toggleVR());
 
             const fsBtn = document.createElement("button");
             fsBtn.id = "lo-viewer-fullscreen-btn";
             fsBtn.className = "lo-viewer-action-btn";
             fsBtn.innerHTML = "⛶";
             fsBtn.title = "Toggle Fullscreen";
-            fsBtn.onclick = (e) => {
-                e.stopPropagation();
+            bindBtn(fsBtn, () => {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen().catch(() => {});
                 } else {
                     document.exitFullscreen().catch(() => {});
                 }
-            };
+            });
 
             toolbar.append(shareBtn, vrBtn, fsBtn);
+            // Toolbar is position:fixed so it doesn't need to live inside #ui;
+            // attaching to body avoids any inherited layout/stacking issues.
             document.body.appendChild(toolbar);
         }
 
