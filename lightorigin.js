@@ -16,6 +16,9 @@ import { TourUIManager } from "./js/TourUIManager.js";
 import { UIManager } from "./js/UIManager.js";
 import { PickingManager } from "./js/PickingManager.js";
 import { BackgroundManager } from "./js/BackgroundManager.js";
+import { ExportManager } from "./js/ExportManager.js";
+import { EmbedManager } from "./js/EmbedManager.js";
+import { XRManager } from "./js/XRManager.js";
 
 window.lo = {
     projectcard: {
@@ -111,6 +114,9 @@ window.lo = {
         this.projectManager = new ProjectManager(this);
         this.uiManager = new UIManager(this);
         this.pickingManager = new PickingManager(this);
+        this.exportManager = new ExportManager(this);
+        this.embedManager = new EmbedManager(this);
+        this.xrManager = new XRManager(this);
         
 
         console.log("LightOrigin space initialized");
@@ -763,6 +769,62 @@ function init() {
                 });
             }
         });
+
+        // Create Viewer Quick Actions (Share & Embed, VR / Gyro, Fullscreen)
+        if (!document.getElementById("lo-viewer-toolbar")) {
+            const toolbar = document.createElement("div");
+            toolbar.id = "lo-viewer-toolbar";
+
+            const shareBtn = document.createElement("button");
+            shareBtn.id = "lo-viewer-share-btn";
+            shareBtn.className = "lo-viewer-action-btn";
+            shareBtn.innerHTML = "🔗";
+            shareBtn.title = "Share & Embed Tour";
+            shareBtn.onclick = (e) => {
+                e.stopPropagation();
+                window.lo.embedManager?.openModal();
+            };
+
+            const vrBtn = document.createElement("button");
+            vrBtn.id = "lo-viewer-vr-btn";
+            vrBtn.className = "lo-viewer-action-btn";
+            vrBtn.innerHTML = "🥽";
+            vrBtn.title = "VR / Motion Gyroscope";
+            vrBtn.onclick = (e) => {
+                e.stopPropagation();
+                window.lo.xrManager?.toggleVR();
+            };
+
+            const fsBtn = document.createElement("button");
+            fsBtn.id = "lo-viewer-fullscreen-btn";
+            fsBtn.className = "lo-viewer-action-btn";
+            fsBtn.innerHTML = "⛶";
+            fsBtn.title = "Toggle Fullscreen";
+            fsBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                } else {
+                    document.exitFullscreen().catch(() => {});
+                }
+            };
+
+            toolbar.append(shareBtn, vrBtn, fsBtn);
+            document.body.appendChild(toolbar);
+        }
+
+        if (params.get("autospin") === "true") {
+            window.lo.cameraManager.startAutospin();
+        }
+        if (params.get("autoplay") === "true") {
+            setTimeout(() => {
+                window.lo.tourManager?.startAutoplay();
+            }, 800);
+        }
+        if (params.get("noui") === "true") {
+            const tb = document.getElementById("lo-viewer-toolbar");
+            if (tb) tb.style.display = "none";
+        }
 
         const logo =
             document.getElementById("viewerBranding");

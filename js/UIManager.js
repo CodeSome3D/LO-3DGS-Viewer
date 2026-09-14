@@ -242,6 +242,19 @@ export class UIManager {
                             class="lo-button">
                             📂 Open Project
                         </button>
+
+                        <button
+                            id="lo-share-embed"
+                            class="lo-button"
+                            style="background: rgba(34, 199, 184, 0.15); border-color: var(--lo-accent, #22C7B8); color: #fff;">
+                            🔗 Share & Embed Tour
+                        </button>
+
+                        <button
+                            id="lo-export-standalone-zip"
+                            class="lo-button">
+                            📦 Export Standalone (.zip)
+                        </button>
                     </div>
 
                 </div>
@@ -448,6 +461,20 @@ export class UIManager {
 
             input.click();
         };
+
+        const shareEmbedBtn = document.getElementById("lo-share-embed");
+        if (shareEmbedBtn) {
+            shareEmbedBtn.onclick = () => {
+                this.lo.embedManager?.openModal();
+            };
+        }
+
+        const exportZipBtn = document.getElementById("lo-export-standalone-zip");
+        if (exportZipBtn) {
+            exportZipBtn.onclick = () => {
+                this.lo.exportManager?.exportStandaloneZip();
+            };
+        }
 
         type.onchange = () => {
 

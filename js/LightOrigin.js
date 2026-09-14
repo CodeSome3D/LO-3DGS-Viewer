@@ -28,6 +28,9 @@ export class LightOrigin {
         this.pickingManager = null;
         this.tourManager = null;
         this.tourUIManager = null;
+        this.exportManager = null;
+        this.embedManager = null;
+        this.xrManager = null;
 
         // Runtime flags
         this.mode = "editor";

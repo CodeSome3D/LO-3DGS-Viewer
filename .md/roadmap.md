@@ -51,6 +51,13 @@ Welcome to the project roadmap for **LO-3DGS-Viewer**. This document outlines co
 - [x] **Call-to-Action (CTA) Buttons**: Interactive custom action buttons embedded in hotspot cards.
 - [x] **Editor Integration & Serialization**: Dedicated Media & CTA controls in Properties panel and project JSON persistence.
 
+### Phase 8: Standalone Export & Embedding 📦
+- [x] **1-Click Zip / HTML Bundle**: Self-contained client-side `.zip` packaging of project data, 3DGS models, and standalone engine files.
+- [x] **Share & Embed Modal Generator**: Live responsive `<iframe>` code snippet generator, shareable viewer URL, and parameter toggles (`autospin`, `autoplay`, `noui`, `theme`).
+- [x] **QR Code Mobile Quick-Scan**: Instant vector QR code generation and SVG download for launching tours on phones.
+- [x] **WebXR & Mobile Gyroscope Mode**: Spatial VR headset viewing and phone motion tilt-to-look camera controls.
+- [x] **Viewer Quick Toolbar**: Floating top-right action bar with Share, Fullscreen, and VR/Motion buttons.
+
 ---
 
 ## 🔮 Future Milestones
@@ -59,8 +66,3 @@ Welcome to the project roadmap for **LO-3DGS-Viewer**. This document outlines co
 - [ ] **2D Floorplan Overlay**: Top-down floorplan widget showing user position and viewing cone radar.
 - [ ] **Interactive Markers**: Clickable points on the floorplan to teleport across rooms.
 - [ ] **Multi-Level / Multi-Room Support**: Switch floorplans when traveling through portals.
-
-### Phase 8: Standalone Export & Embedding
-- [ ] **1-Click Zip / HTML Bundle**: Self-contained export containing all project data and assets ready for hosting.
-- [ ] **Embed Code Generator**: Easy `<iframe>` embed snippet generator with customizable parameters (`noui`, `autospin`, etc.).
-- [ ] **WebXR / VR Mode**: Spatial headset and mobile gyroscope viewing support.
