@@ -727,6 +727,7 @@ textarea:focus{
 }
 
 #lightorigin-logo{
+    display: none;
     position:absolute;
     left:16px;
     bottom:16px;

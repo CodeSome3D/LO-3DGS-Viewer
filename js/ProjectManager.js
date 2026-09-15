@@ -391,6 +391,9 @@ export class ProjectManager {
             }
         }
 
+        this.lo._projectLoaded = true;
+        this.lo._isProjectLoading = false;
+        this.lo._hasPendingProject = false;
         this.lo.updateViewerLogo?.();
 
         if (this.lo.isEditor()) {
@@ -466,20 +469,25 @@ export class ProjectManager {
 
         console.log(`[ProjectManager] Loading project from URL: ${fetchUrl}`);
 
-        const response =
-            await fetch(fetchUrl);
+        this.lo._isProjectLoading = true;
+        try {
+            const response =
+                await fetch(fetchUrl);
 
-        if (!response.ok) {
+            if (!response.ok) {
 
-            throw new Error(
-                `Failed to load project: ${response.status} from ${fetchUrl}`
-            );
+                throw new Error(
+                    `Failed to load project: ${response.status} from ${fetchUrl}`
+                );
+            }
+
+            const json =
+                await response.text();
+
+            await this.import(json, fetchUrl);
+        } finally {
+            this.lo._isProjectLoading = false;
         }
-
-        const json =
-            await response.text();
-
-        await this.import(json, fetchUrl);
 
         if (updateUrl && typeof window !== "undefined" && window.location && window.history?.pushState) {
             try {

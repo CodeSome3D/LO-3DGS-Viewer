@@ -89,6 +89,20 @@
       },
       "distance": 2.4212396991679666,
       "fov": 75
+    },
+    "camera-4": {
+      "position": {
+        "x": 0.7983530676843504,
+        "y": -0.17478463534652322,
+        "z": -0.0008446000011232968
+      },
+      "angles": {
+        "x": -24.81066936417674,
+        "y": -8.405414348381992,
+        "z": 0
+      },
+      "distance": 6.746520830503738,
+      "fov": 75
     }
   },
   "hotspots": [
@@ -157,6 +171,28 @@
         "z": -0.17188535839055027
       },
       "cameraId": "camera-2"
+    },
+    {
+      "id": "1789469840070",
+      "title": "Szklarnia",
+      "description": "",
+      "color": "#629504",
+      "type": "portal",
+      "icon": "door",
+      "customSvg": "",
+      "mediaType": "none",
+      "mediaUrl": "",
+      "actionButton": {
+        "label": "",
+        "url": ""
+      },
+      "targetUrl": "/projects/01_cactus/01_cactus.json",
+      "position": {
+        "x": 0.7983530676843503,
+        "y": -0.17478463534652322,
+        "z": -0.0008446000011245068
+      },
+      "cameraId": "camera-4"
     }
   ]
 }

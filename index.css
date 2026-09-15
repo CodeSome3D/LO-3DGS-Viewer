@@ -751,6 +751,7 @@ button {
 }
 
 #lightorigin-logo {
+    display: none;
     position: absolute;
     bottom: 70px;
     left: 40px;

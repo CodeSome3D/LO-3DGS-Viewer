@@ -58,10 +58,9 @@ window.lo = {
     },
     waitingForHotspotPick: false,
     mode:
-        new URLSearchParams(window.location.search)
-            .get("mode") === "viewer"
-                ? "viewer"
-                : "editor",
+        (typeof window !== "undefined" && (new URLSearchParams(window.location.search).get("mode") === "viewer" || window.__LO_PROJECT_URL__))
+            ? "viewer"
+            : "editor",
     viewer: null,
     cameras: {},
     hotspots: [],
@@ -584,7 +583,6 @@ window.lo = {
 
         const root = document.documentElement;
         const headerLogo = document.getElementById("lo-header-logo");
-        const lightoriginLogo = document.querySelector("#lightorigin-logo img");
 
         // Apply CSS attribute so [data-lo-theme] selectors fire
         root.setAttribute("data-lo-theme", theme || "dark");
@@ -682,6 +680,12 @@ window.lo = {
             return;
         }
 
+        // If a project is pending or currently loading, keep the viewer logo hidden until project data is imported
+        if (!this._projectLoaded && (this._hasPendingProject || this._isProjectLoading)) {
+            logoContainer.style.display = "none";
+            return;
+        }
+
         const config = this.projectcard?.viewerLogo || { visible: true, type: "default" };
 
         if (config.visible === false) {
@@ -689,18 +693,18 @@ window.lo = {
             return;
         }
 
-        logoContainer.style.display = "";
-
         if (config.type === "custom" && config.url) {
             logoImg.src = config.url;
             logoImg.alt = config.filename || "Viewer Logo";
             logoImg.style.filter = "none";
+            logoContainer.style.display = "block";
         } else {
             const currentTheme = this.projectcard?.theme || "dark";
             const themeConfig = this.THEMES?.[currentTheme] || {};
             logoImg.src = themeConfig.logoIcon || "logo_LO.png";
             logoImg.alt = "LightOrigin";
             logoImg.style.filter = "none";
+            logoContainer.style.display = "block";
         }
     },
 
@@ -731,7 +735,12 @@ function init() {
     );
 
     const params = new URLSearchParams(window.location.search);
-    const projectUrl = params.get("project");
+    const projectUrl = params.get("project") || (typeof window !== "undefined" ? window.__LO_PROJECT_URL__ : null);
+
+    if (projectUrl) {
+        window.lo._hasPendingProject = true;
+        window.lo._isProjectLoading = true;
+    }
 
     // ?theme=midnight (or any theme name) overrides saved theme for easy preview
     const urlTheme = params.get("theme");
@@ -814,6 +823,10 @@ function init() {
                         "Viewer project load failed:",
                         error
                     );
+                    window.lo._hasPendingProject = false;
+                    window.lo._isProjectLoading = false;
+                    window.lo._projectLoaded = true;
+                    window.lo.updateViewerLogo();
                 });
         } else {
             if (window.lo.projectcard.autospinOnLoad) {

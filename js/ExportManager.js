@@ -105,6 +105,9 @@ export class ExportManager {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
         <link rel="stylesheet" href="./index.css">
         <link rel="stylesheet" href="./lightorigin.css">
+        <script>
+            window.__LO_PROJECT_URL__ = './project.json';
+        </script>
         <script type="module">
             const url = new URL(location.href);
             const isWebGL = url.searchParams.has('webgl');
@@ -135,8 +138,8 @@ export class ExportManager {
         </script>
     </head>
     <body>
-        <div id="lightorigin-logo"${this.lo.projectcard.viewerLogo?.visible === false ? ' style="display:none;"' : ''}>
-            <img src="${(this.lo.projectcard.viewerLogo?.type === 'custom' && this.lo.projectcard.viewerLogo?.url) ? this.lo.projectcard.viewerLogo.url : 'logo_LO.png'}" alt="${this.lo.projectcard.viewerLogo?.filename || 'LightOrigin'}">
+        <div id="lightorigin-logo" style="display: none;">
+            <img alt="Logo">
         </div>
         <canvas id="application-canvas"></canvas>
 
@@ -147,20 +150,6 @@ export class ExportManager {
         </div>
 
         <script type="module" src="./lightorigin.js"></script>
-        <script type="module">
-            // Automatically load the bundled project in viewer mode
-            window.addEventListener('load', async () => {
-                const checkReady = () => {
-                    if (window.lo?.loadProjectFromURL) {
-                        window.lo.mode = "viewer";
-                        window.lo.projectManager.loadFromURL('./project.json');
-                    } else {
-                        setTimeout(checkReady, 50);
-                    }
-                };
-                checkReady();
-            });
-        </script>
     </body>
 </html>`;
 

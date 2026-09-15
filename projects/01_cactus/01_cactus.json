@@ -91,6 +91,20 @@
       },
       "distance": 4.099334530420908,
       "fov": 75
+    },
+    "camera-4": {
+      "position": {
+        "x": 0.8094977216686945,
+        "y": -0.18433393226271955,
+        "z": -0.031168205901854762
+      },
+      "angles": {
+        "x": -18.439645872899558,
+        "y": 1.403564020690384,
+        "z": 0
+      },
+      "distance": 6.546406785044382,
+      "fov": 75
     }
   },
   "hotspots": [
@@ -159,6 +173,28 @@
         "z": 0.057606052987739166
       },
       "cameraId": "camera-2"
+    },
+    {
+      "id": "1789469647832",
+      "title": "Gradient Room",
+      "description": "",
+      "color": "#439301",
+      "type": "portal",
+      "icon": "door",
+      "customSvg": "",
+      "mediaType": "none",
+      "mediaUrl": "",
+      "actionButton": {
+        "label": "",
+        "url": ""
+      },
+      "targetUrl": "/projects/02_kaktus/02_kaktus.json",
+      "position": {
+        "x": 0.8094977216686945,
+        "y": -0.18433393226271988,
+        "z": -0.031168205901855508
+      },
+      "cameraId": "camera-4"
     }
   ]
 }
