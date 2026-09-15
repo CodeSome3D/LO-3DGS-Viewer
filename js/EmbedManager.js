@@ -106,10 +106,10 @@ export class EmbedManager {
                             <div id="lo-embed-qr-code" class="lo-embed-qr-box"></div>
                             <div class="lo-embed-qr-info">
                                 <label class="lo-embed-label">📱 Scan with Phone</label>
-                                <div style="font-size:12px;opacity:0.75;line-height:1.4;margin-bottom:8px;">
+                                <div class="lo-embed-desc">
                                     Point your phone camera at this QR code to launch the 3D tour instantly on mobile.
                                 </div>
-                                <button id="lo-download-qr-btn" class="lo-button lo-embed-copy-btn" style="width:auto;margin:0;padding:6px 14px;font-size:12px;">
+                                <button id="lo-download-qr-btn" class="lo-button lo-embed-copy-btn">
                                     💾 Download QR (.svg)
                                 </button>
                             </div>
@@ -143,18 +143,18 @@ export class EmbedManager {
                     <div class="lo-embed-section">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                             <label class="lo-embed-label" style="margin-bottom:0;">HTML Embed Code (&lt;iframe&gt;)</label>
-                            <button id="lo-copy-snippet-btn" class="lo-button lo-embed-copy-btn" style="width:auto;margin:0;padding:6px 14px;font-size:12px;">📋 Copy Code</button>
+                            <button id="lo-copy-snippet-btn" class="lo-button lo-embed-copy-btn">📋 Copy Code</button>
                         </div>
                         <textarea id="lo-embed-snippet" readonly rows="4" class="lo-embed-textarea"></textarea>
                     </div>
 
                     <!-- Quick Standalone ZIP Download Button -->
-                    <div class="lo-embed-section" style="border-top:1px solid rgba(255,255,255,0.12);padding-top:14px;display:flex;justify-content:space-between;align-items:center;">
+                    <div class="lo-embed-section lo-embed-footer-row">
                         <div>
-                            <strong style="font-size:13px;color:#fff;">Self-Hosted Package</strong>
-                            <div style="font-size:11.5px;opacity:0.65;margin-top:2px;">Export complete standalone offline web package</div>
+                            <strong class="lo-embed-footer-title">Self-Hosted Package</strong>
+                            <div class="lo-embed-footer-desc">Export complete standalone offline web package</div>
                         </div>
-                        <button id="lo-modal-export-zip-btn" class="lo-button" style="width:auto;margin:0;background:rgba(34,199,184,0.18);border-color:var(--lo-accent,#22C7B8);color:#fff;">
+                        <button id="lo-modal-export-zip-btn" class="lo-button lo-embed-copy-btn">
                             📦 Export .zip
                         </button>
                     </div>

@@ -586,67 +586,73 @@ window.lo = {
         const headerLogo = document.getElementById("lo-header-logo");
         const lightoriginLogo = document.querySelector("#lightorigin-logo img");
 
-        if (theme === "dark") {
+        // Apply CSS attribute so [data-lo-theme] selectors fire
+        root.setAttribute("data-lo-theme", theme || "dark");
 
-            root.style.setProperty("--lo-bg", "#262626");
-            root.style.setProperty("--lo-panel", "#2c2c2c");
-            root.style.setProperty("--lo-panel-hover", "#3a3a3a");
-            root.style.setProperty("--lo-button", "#353535");
-            root.style.setProperty("--lo-border", "#444");
-            root.style.setProperty("--lo-text", "#ffffff");
-            root.style.setProperty("--lo-text-secondary", "#999");
-            root.style.setProperty("--lo-accent", "#22C7B8");
-            if (this.projectcard.background.type === "color") {
-                this.projectcard.background.color = "#0A1D24";
-                const picker = document.getElementById("lo-bg-picker");
-                if (picker) {
-                    picker.value = this.projectcard.background.color;
-                }
-                this.applyBackground();
-            }
+        // Sync swatch UI if available
+        this.uiManager?._updateThemeSwatches?.(theme || "dark");
 
-            if (headerLogo) {
-                headerLogo.src = "logo_LO_hor.png";
-            }
+        // Clear any inline overrides from previous calls
+        const tokens = [
+            "--lo-bg","--lo-panel","--lo-panel-hover","--lo-button",
+            "--lo-border","--lo-text","--lo-text-secondary","--lo-accent"
+        ];
+        tokens.forEach(t => root.style.removeProperty(t));
 
-            if (lightoriginLogo) {
-                lightoriginLogo.src = "logo_LO.png";
-                lightoriginLogo.style.filter = "none";
-            }
+        const THEMES = {
+            dark: {
+                bg: "#262626", panel: "#2c2c2c", panelHover: "#3a3a3a",
+                button: "#353535", border: "#444", text: "#ffffff",
+                textSec: "#999", accent: "#22C7B8",
+                viewerBg: "#0A1D24", logo: "logo_LO_hor.png", logoIcon: "logo_LO.png",
+            },
+            light: {
+                bg: "#f2f2f2", panel: "#ffffff", panelHover: "#e9e9e9",
+                button: "#ffffff", border: "#cccccc", text: "#222222",
+                textSec: "#666666", accent: "#11998E",
+                viewerBg: "#F4F6F8", logo: "logo_LO_hor_dark.png", logoIcon: "logo_LO_dark.png",
+            },
+            midnight: {
+                bg: "#080d1a", panel: "#0e1628", panelHover: "#172036",
+                button: "#131c30", border: "rgba(120,100,255,.22)", text: "#e8e4ff",
+                textSec: "#7c72cc", accent: "#9b87ff",
+                viewerBg: "#04070f", logo: "logo_LO_hor.png", logoIcon: "logo_LO.png",
+            },
+            earth: {
+                bg: "#16100a", panel: "#1f1710", panelHover: "#2a1f15",
+                button: "#231a12", border: "rgba(180,110,40,.22)", text: "#f0e4d0",
+                textSec: "#9a7a58", accent: "#e8893a",
+                viewerBg: "#0c0804", logo: "logo_LO_hor.png", logoIcon: "logo_LO.png",
+            },
+        };
 
-            return;
+        const t = THEMES[theme] || THEMES.dark;
+
+        root.style.setProperty("--lo-bg", t.bg);
+        root.style.setProperty("--lo-panel", t.panel);
+        root.style.setProperty("--lo-panel-hover", t.panelHover);
+        root.style.setProperty("--lo-button", t.button);
+        root.style.setProperty("--lo-border", t.border);
+        root.style.setProperty("--lo-text", t.text);
+        root.style.setProperty("--lo-text-secondary", t.textSec);
+        root.style.setProperty("--lo-accent", t.accent);
+
+        // Apply viewer background only if currently a solid color bg
+        if (this.projectcard.background.type === "color") {
+            this.projectcard.background.color = t.viewerBg;
+            const picker = document.getElementById("lo-bg-picker");
+            if (picker) picker.value = t.viewerBg;
+            this.applyBackground();
         }
 
-        if (theme === "light") {
-
-            root.style.setProperty("--lo-bg", "#f2f2f2");
-            root.style.setProperty("--lo-panel", "#ffffff");
-            root.style.setProperty("--lo-panel-hover", "#e9e9e9");
-            root.style.setProperty("--lo-button", "#ffffff");
-            root.style.setProperty("--lo-border", "#cccccc");
-            root.style.setProperty("--lo-text", "#222222");
-            root.style.setProperty("--lo-text-secondary", "#666666");
-            root.style.setProperty("--lo-accent", "#11998E");
-
-            if (this.projectcard.background.type === "color") {
-                this.projectcard.background.color = "#F4F6F8";
-                const picker = document.getElementById("lo-bg-picker");
-                if (picker) {
-                    picker.value = this.projectcard.background.color;
-                }
-                this.applyBackground();
-            }
-
-            if (headerLogo) {
-                headerLogo.src = "logo_LO_hor_dark.png";
-            }
-
-            if (lightoriginLogo) {
-                lightoriginLogo.src = "logo_LO_dark.png";
-                lightoriginLogo.style.filter = "none";
-            }
+        if (headerLogo) headerLogo.src = t.logo;
+        if (lightoriginLogo) {
+            lightoriginLogo.src = t.logoIcon;
+            lightoriginLogo.style.filter = "none";
         }
     },
+
+
 
 
 };
@@ -674,6 +680,13 @@ function init() {
 
     const params = new URLSearchParams(window.location.search);
     const projectUrl = params.get("project");
+
+    // ?theme=midnight (or any theme name) overrides saved theme for easy preview
+    const urlTheme = params.get("theme");
+    if (urlTheme) {
+        window.lo.setTheme(urlTheme);
+    }
+
 
     if (window.lo.isEditor()) {
         window.lo.createUI();

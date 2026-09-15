@@ -64,16 +64,58 @@ export class UIManager {
 
                         <label for="lo-bg-picker">Color</label>
 
+
                         <div class="lo-section">
 
-                            <div class="lo-section-title">Theme</div>
+                            <div class="lo-section-title">Editor Theme</div>
 
-                            <select id="lo-theme" class="lo-select">
-                                <option value="dark">Dark</option>
-                                <option value="light">Light</option>
-                            </select>
+                            <div class="lo-theme-swatches" id="lo-theme-swatches">
+
+                                <div class="lo-theme-swatch" data-theme="dark" title="Dark" id="lo-swatch-dark">
+                                    <div class="lo-theme-swatch-inner">
+                                        <span style="background:#262626"></span>
+                                        <span style="background:#22C7B8"></span>
+                                        <span style="background:#2c2c2c"></span>
+                                        <span style="background:#353535"></span>
+                                    </div>
+                                    <div class="lo-theme-swatch-label">Dark</div>
+                                </div>
+
+                                <div class="lo-theme-swatch" data-theme="light" title="Light" id="lo-swatch-light">
+                                    <div class="lo-theme-swatch-inner">
+                                        <span style="background:#f2f2f2"></span>
+                                        <span style="background:#11998E"></span>
+                                        <span style="background:#ffffff"></span>
+                                        <span style="background:#cccccc"></span>
+                                    </div>
+                                    <div class="lo-theme-swatch-label">Light</div>
+                                </div>
+
+                                <div class="lo-theme-swatch" data-theme="midnight" title="Midnight" id="lo-swatch-midnight">
+                                    <div class="lo-theme-swatch-inner">
+                                        <span style="background:#080d1a"></span>
+                                        <span style="background:#9b87ff"></span>
+                                        <span style="background:#0e1628"></span>
+                                        <span style="background:#131c30"></span>
+                                    </div>
+                                    <div class="lo-theme-swatch-label">Midnight</div>
+                                </div>
+
+                                <div class="lo-theme-swatch" data-theme="earth" title="Earth" id="lo-swatch-earth">
+                                    <div class="lo-theme-swatch-inner">
+                                        <span style="background:#16100a"></span>
+                                        <span style="background:#e8893a"></span>
+                                        <span style="background:#1f1710"></span>
+                                        <span style="background:#231a12"></span>
+                                    </div>
+                                    <div class="lo-theme-swatch-label">Earth</div>
+                                </div>
+
+                            </div>
 
                         </div>
+
+
 
                         <label class="lo-checkbox-row">
 
@@ -245,8 +287,7 @@ export class UIManager {
 
                         <button
                             id="lo-share-embed"
-                            class="lo-button"
-                            style="background: rgba(34, 199, 184, 0.15); border-color: var(--lo-accent, #22C7B8); color: #fff;">
+                            class="lo-button">
                             🔗 Share & Embed Tour
                         </button>
 
@@ -404,7 +445,7 @@ export class UIManager {
         const imageName =
             document.getElementById("lo-bg-image-name");
 
-        const theme = document.getElementById("lo-theme");
+        const themeSwatches = document.getElementById("lo-theme-swatches");
 
         const autospin = document.getElementById("lo-autospin-on-load");
         const tourAutoplay = document.getElementById("lo-tour-autoplay-on-load");
@@ -548,13 +589,18 @@ export class UIManager {
             }
         };
 
-        theme.onchange = () => {
-
-            this.lo.projectcard.theme = theme.value;
-
-            this.lo.setTheme(theme.value);
-
-        };
+        // Swatch picker — delegate clicks on the container
+        if (themeSwatches) {
+            themeSwatches.addEventListener("click", (e) => {
+                const swatch = e.target.closest(".lo-theme-swatch");
+                if (!swatch) return;
+                const t = swatch.dataset.theme;
+                if (!t) return;
+                this.lo.projectcard.theme = t;
+                this.lo.setTheme(t);
+                this._updateThemeSwatches(t);
+            });
+        }
 
         autospin.onchange = () => {
 
@@ -781,7 +827,6 @@ export class UIManager {
 
         const type = document.getElementById("lo-bg-type");
         const picker = document.getElementById("lo-bg-picker");
-        const theme = document.getElementById("lo-theme");
         const autospin = document.getElementById("lo-autospin-on-load");
         const tourAutoplay = document.getElementById("lo-tour-autoplay-on-load");
         const tourDwellTime = document.getElementById("lo-tour-dwell-time");
@@ -802,8 +847,9 @@ export class UIManager {
             tourDwellTime.value =
                 String(this.lo.projectcard.tourDwellTime || 5000);
         }
-        theme.value = this.lo.projectcard.theme || "dark";
-        this.lo.setTheme(this.lo.projectcard.theme || "dark");
+        const activeTheme = this.lo.projectcard.theme || "dark";
+        this.lo.setTheme(activeTheme);
+        this._updateThemeSwatches(activeTheme);
 
         type.value = bg.type;
         picker.value = bg.color;
@@ -1426,4 +1472,16 @@ export class UIManager {
 
         }, 2000);
     }
-}
+
+    /** Syncs swatch active state + data-lo-theme attribute */
+    _updateThemeSwatches(themeName) {
+        // Update HTML attribute so CSS [data-lo-theme] selectors fire
+        document.documentElement.setAttribute("data-lo-theme", themeName);
+
+        // Update swatch active class
+        const swatches = document.querySelectorAll(".lo-theme-swatch");
+        swatches.forEach(sw => {
+            sw.classList.toggle("active", sw.dataset.theme === themeName);
+        });
+    }
+}
