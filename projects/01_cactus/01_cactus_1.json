@@ -1,0 +1,164 @@
+{
+  "project": {
+    "name": "Cactus",
+    "version": 1,
+    "theme": "dark",
+    "autospinOnLoad": false,
+    "background": {
+      "type": "panorama",
+      "color": "#0A1D24",
+      "gradient": {
+        "mode": "linear",
+        "angle": 0,
+        "colors": [
+          "#23140b",
+          "#685f03"
+        ]
+      },
+      "image": {
+        "url": "assets/image.png",
+        "fit": "cover",
+        "file": {}
+      },
+      "panorama": {
+        "url": "assets/greenhouse.jpg",
+        "rotation": 84,
+        "file": {}
+      }
+    },
+    "folder": "projects/01_cactus",
+    "scene": "./projects/01_cactus/01_cactus.sog",
+    "viewerLogo": {
+      "visible": true,
+      "type": "custom",
+      "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMTIwIiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEyMCI+CiAgPGRlZnM+CiAgICA8IS0tIEdyYWRpZW50IGZvciBvdXRlciBwZXRhbHMgLS0+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InNhZ2VHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzU1YTM4OCIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiMzZDgyNmEiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzJkNjQ1MSIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICAKICAgIDwhLS0gR3JhZGllbnQgZm9yIGlubmVyIHBldGFscyAtLT4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iaW5uZXJHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzdlY2JhOCIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNGE5YjdiIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KCiAgICA8IS0tIFdhcm0gdGVycmFjb3R0YSBoaWdobGlnaHQgLS0+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9Indhcm1HcmFkIiB4MT0iMCUiIHkxPSIxMDAlIiB4Mj0iMTAwJSIgeTI9IjAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UwODI1NyIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI2MCUiIHN0b3AtY29sb3I9IiM3ZWNiYTgiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4Nzc2MCIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CgogICAgPCEtLSBTb2Z0IGRyb3Agc2hhZG93IC0tPgogICAgPGZpbHRlciBpZD0ic29mdEdsb3ciIHg9Ii0yMCUiIHk9Ii0yMCUiIHdpZHRoPSIxNDAlIiBoZWlnaHQ9IjE0MCUiPgogICAgICA8ZmVEcm9wU2hhZG93IGR4PSIwIiBkeT0iMiIgc3RkRGV2aWF0aW9uPSIzIiBmbG9vZC1jb2xvcj0iIzAwMDAwMCIgZmxvb2Qtb3BhY2l0eT0iMC4zNSIgLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KCiAgPCEtLSBTdWNjdWxlbnQgRW1ibGVtIChDZW50ZXIgYXQgeD02MCwgeT02MCkgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNjAsIDYwKSIgZmlsdGVyPSJ1cmwoI3NvZnRHbG93KSI+CiAgICA8IS0tIExheWVyIDE6IE91dGVyIFBldGFscyAoT2N0YWdvbiAvIDggcGV0YWxzKSAtLT4KICAgIDxnIGZpbGw9InVybCgjc2FnZUdyYWQpIiBzdHJva2U9IiMxYTNiMmYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICAgICAgPHBhdGggZD0iTSAwIC00NiBDIDE0IC0zMiAxOCAtMTggMCAwIEMgLTE4IC0xOCAtMTQgLTMyIDAgLTQ2IFoiIC8+CiAgICAgIDxwYXRoIGQ9Ik0gMCA0NiBDIDE0IDMyIDE4IDE4IDAgMCBDIC0xOCAxOCAtMTQgMzIgMCA0NiBaIiAvPgogICAgICA8cGF0aCBkPSJNIDQ2IDAgQyAzMiAxNCAxOCAxOCAwIDAgQyAxOCAtMTggMzIgLTE0IDQ2IDAgWiIgLz4KICAgICAgPHBhdGggZD0iTSAtNDYgMCBDIC0zMiAxNCAtMTggMTggMCAwIEMgLTE4IC0xOCAtMzIgLTE0IC00NiAwIFoiIC8+CiAgICAgIDxwYXRoIGQ9Ik0gMzIuNSAtMzIuNSBDIDMyLjUgLTEyIDIxIC0zIDAgMCBDIDMgLTIxIDEyIC0zMi41IDMyLjUgLTMyLjUgWiIgLz4KICAgICAgPHBhdGggZD0iTSAtMzIuNSAtMzIuNSBDIC0zMi41IC0xMiAtMjEgLTMgMCAwIEMgLTMgLTIxIC0xMiAtMzIuNSAtMzIuNSAtMzIuNSBaIiAvPgogICAgICA8cGF0aCBkPSJNIDMyLjUgMzIuNSBDIDMyLjUgMTIgMjEgMyAwIDAgQyAzIDIxIDEyIDMyLjUgMzIuNSAzMi41IFoiIC8+CiAgICAgIDxwYXRoIGQ9Ik0gLTMyLjUgMzIuNSBDIC0zMi41IDEyIC0yMSAzIDAgMCBDIC0zIDIxIC0xMiAzMi41IC0zMi41IDMyLjUgWiIgLz4KICAgIDwvZz4KCiAgICA8IS0tIExheWVyIDI6IE1pZCBQZXRhbHMgKFJvdGF0ZWQgMjIuNSBkZWcpIC0tPgogICAgPGcgdHJhbnNmb3JtPSJyb3RhdGUoMjIuNSkiIGZpbGw9InVybCgjd2FybUdyYWQpIiBzdHJva2U9IiMxZjQyMzYiIHN0cm9rZS13aWR0aD0iMS41Ij4KICAgICAgPHBhdGggZD0iTSAwIC0zNCBDIDExIC0yMyAxMyAtMTMgMCAwIEMgLTEzIC0xMyAtMTEgLTIzIDAgLTM0IFoiIC8+CiAgICAgIDxwYXRoIGQ9Ik0gMCAzNCBDIDExIDIzIDEzIDEzIDAgMCBDIC0xMyAxMyAtMTEgMjMgMCAzNCBaIiAvPgogICAgICA8cGF0aCBkPSJNIDM0IDAgQyAyMyAxMSAxMyAxMyAwIDAgQyAxMyAtMTMgMjMgLTExIDM0IDAgWiIgLz4KICAgICAgPHBhdGggZD0iTSAtMzQgMCBDIC0yMyAxMSAtMTMgMTMgMCAwIEMgLTEzIC0xMyAtMjMgLTExIC0zNCAwIFoiIC8+CiAgICA8L2c+CgogICAgPCEtLSBMYXllciAzOiBJbm5lciBQZXRhbHMgLS0+CiAgICA8ZyB0cmFuc2Zvcm09InJvdGF0ZSg0NSkiIGZpbGw9InVybCgjaW5uZXJHcmFkKSIgc3Ryb2tlPSIjMWIzZjMyIiBzdHJva2Utd2lkdGg9IjEuMiI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAtMjIgQyA4IC0xNSA5IC04IDAgMCBDIC05IC04IC04IC0xNSAwIC0yMiBaIiAvPgogICAgICA8cGF0aCBkPSJNIDAgMjIgQyA4IDE1IDkgOCAwIDAgQyAtOSA4IC04IDE1IDAgMjIgWiIgLz4KICAgICAgPHBhdGggZD0iTSAyMiAwIEMgMTUgOCA4IDkgMCAwIEMgOCAtOSAxNSAtOCAyMiAwIFoiIC8+CiAgICAgIDxwYXRoIGQ9Ik0gLTIyIDAgQyAtMTUgOCAtOCA5IDAgMCBDIC04IC05IC0xNSAtOCAtMjIgMCBaIiAvPgogICAgPC9nPgoKICAgIDwhLS0gQ2VudGVyIEJ1ZCAtLT4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSI2IiBmaWxsPSIjYTRlNGMzIiBzdHJva2U9IiMyMzU0NDIiIHN0cm9rZS13aWR0aD0iMS41IiAvPgogICAgPGNpcmNsZSBjeD0iMCIgY3k9IjAiIHI9IjIuNSIgZmlsbD0iI2YwOWI3NSIgLz4KICA8L2c+CgogIDwhLS0gVHlwb2dyYXBoeSAtLT4KICA8ZyBmaWxsPSIjZmZmZmZmIj4KICAgIDwhLS0gUHJpbWFyeSBCcmFuZCBUaXRsZSAtLT4KICAgIDx0ZXh0IHg9IjEzMiIgeT0iNTUiIGZvbnQtZmFtaWx5PSInT3V0Zml0JywgJ0ludGVyJywgc3lzdGVtLXVpLCAtYXBwbGUtc3lzdGVtLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI4IiBmb250LXdlaWdodD0iODAwIiBsZXR0ZXItc3BhY2luZz0iMyIgdGV4dC1hbmNob3I9InN0YXJ0Ij4KICAgICAgU1VDQ1VMRU5UCiAgICA8L3RleHQ+CiAgICAKICAgIDwhLS0gQWNjZW50IFNlY29uZGFyeSBXb3JkIC0tPgogICAgPHRleHQgeD0iMTMyIiB5PSI4NiIgZm9udC1mYW1pbHk9IidPdXRmaXQnLCAnSW50ZXInLCBzeXN0ZW0tdWksIC1hcHBsZS1zeXN0ZW0sIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSIzMDAiIGxldHRlci1zcGFjaW5nPSI4IiBmaWxsPSIjN2VjYmE4IiB0ZXh0LWFuY2hvcj0ic3RhcnQiPgogICAgICBPQVNJUwogICAgPC90ZXh0PgoKICAgIDwhLS0gU3VidGxlIFRhZ2xpbmUgLS0+CiAgICA8dGV4dCB4PSIxMzQiIHk9IjEwNSIgZm9udC1mYW1pbHk9IidJbnRlcicsIHN5c3RlbS11aSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5IiBmb250LXdlaWdodD0iNjAwIiBsZXR0ZXItc3BhY2luZz0iMi41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNikiIHRleHQtYW5jaG9yPSJzdGFydCI+CiAgICAgIEJPVVRJUVVFIFBMQU5UIFNUVURJTwogICAgPC90ZXh0PgogIDwvZz4KPC9zdmc+Cg==",
+      "filename": "succulent_shop_logo.svg"
+    }
+  },
+  "cameras": {
+    "camera-0": {
+      "position": {
+        "x": -0.3092124918802919,
+        "y": 0.47765064725491546,
+        "z": 0.4831765698044643
+      },
+      "angles": {
+        "x": -13.57442361600258,
+        "y": -347.4187102439685,
+        "z": 0
+      },
+      "distance": 6.001835685989253,
+      "fov": 75
+    },
+    "camera-1": {
+      "position": {
+        "x": -0.23585622994549893,
+        "y": 0.7409408541995389,
+        "z": -0.31215176216149976
+      },
+      "angles": {
+        "x": -10.09411871220391,
+        "y": -171.88898252738917,
+        "z": 0
+      },
+      "distance": 2.7446879420861157,
+      "fov": 75
+    },
+    "camera-2": {
+      "position": {
+        "x": -0.15733924310848724,
+        "y": 1.8122330407152154,
+        "z": 0.05760605298773924
+      },
+      "angles": {
+        "x": -14.644467366261225,
+        "y": -61.276708698343214,
+        "z": 0
+      },
+      "distance": 2.150555953154295,
+      "fov": 75
+    },
+    "camera-3": {
+      "position": {
+        "x": -0.051052959880932836,
+        "y": -0.0905760422448103,
+        "z": 0.8547182785006499
+      },
+      "angles": {
+        "x": -27.82442361600258,
+        "y": -76.51871024396897,
+        "z": 0
+      },
+      "distance": 4.099334530420908,
+      "fov": 75
+    }
+  },
+  "hotspots": [
+    {
+      "id": "1784894763380",
+      "title": "Base",
+      "description": "Scanning base",
+      "color": "#41352a",
+      "type": "hotspot",
+      "icon": "default",
+      "customSvg": "",
+      "mediaType": "none",
+      "mediaUrl": "",
+      "actionButton": {
+        "label": "",
+        "url": ""
+      },
+      "targetUrl": "",
+      "position": {
+        "x": -0.05105295988093334,
+        "y": -0.09057604224481001,
+        "z": 0.8547182785006492
+      },
+      "cameraId": "camera-3"
+    },
+    {
+      "id": "1784894781621",
+      "title": "Pot",
+      "description": "Cactus pot",
+      "color": "#a76237",
+      "type": "hotspot",
+      "icon": "default",
+      "customSvg": "",
+      "mediaType": "none",
+      "mediaUrl": "",
+      "actionButton": {
+        "label": "",
+        "url": ""
+      },
+      "targetUrl": "",
+      "position": {
+        "x": -0.23585622994549846,
+        "y": 0.7409408541995388,
+        "z": -0.3121517621614996
+      },
+      "cameraId": "camera-1"
+    },
+    {
+      "id": "1784894817326",
+      "title": "Cactus",
+      "description": "Cactus itself",
+      "color": "#a4c366",
+      "type": "hotspot",
+      "icon": "default",
+      "customSvg": "",
+      "mediaType": "none",
+      "mediaUrl": "",
+      "actionButton": {
+        "label": "",
+        "url": ""
+      },
+      "targetUrl": "",
+      "position": {
+        "x": -0.1573392431084866,
+        "y": 1.8122330407152154,
+        "z": 0.057606052987739166
+      },
+      "cameraId": "camera-2"
+    }
+  ]
+}

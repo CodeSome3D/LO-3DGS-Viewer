@@ -19,6 +19,13 @@ export class Serializer {
         project.project.theme ??= "dark";
         project.project.autospinOnLoad ??= false;
 
+        project.project.viewerLogo ??= {
+            visible: true,
+            type: "default",
+            url: "",
+            filename: ""
+        };
+
         project.project.background ??= {};
 
         project.project.background.type ??= "color";

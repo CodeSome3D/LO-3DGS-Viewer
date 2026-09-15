@@ -135,8 +135,8 @@ export class ExportManager {
         </script>
     </head>
     <body>
-        <div id="lightorigin-logo">
-            <img src="logo_LO.png" alt="LightOrigin">
+        <div id="lightorigin-logo"${this.lo.projectcard.viewerLogo?.visible === false ? ' style="display:none;"' : ''}>
+            <img src="${(this.lo.projectcard.viewerLogo?.type === 'custom' && this.lo.projectcard.viewerLogo?.url) ? this.lo.projectcard.viewerLogo.url : 'logo_LO.png'}" alt="${this.lo.projectcard.viewerLogo?.filename || 'LightOrigin'}">
         </div>
         <canvas id="application-canvas"></canvas>
 

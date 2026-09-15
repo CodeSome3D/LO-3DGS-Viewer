@@ -733,6 +733,151 @@ textarea:focus{
     width:180px;
 }
 
+#lightorigin-logo img{
+    width:180px;
+    height:auto;
+    display:block;
+}
+
+.lo-button-toggle{
+    background:var(--lo-button);
+    border:1px solid var(--lo-border);
+    color:var(--lo-text);
+    cursor:pointer;
+    border-radius:6px;
+    transition:all .15s ease;
+}
+
+.lo-button-toggle.active{
+    background:var(--lo-panel-hover);
+    border-color:var(--lo-accent);
+    color:var(--lo-accent);
+    font-weight:600;
+}
+
+/* ─── Viewer Logo Controls & Preview Card ─── */
+.lo-segmented-control {
+    display: flex;
+    gap: 4px;
+    padding: 3px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--lo-border);
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.lo-segment-btn {
+    flex: 1;
+    padding: 6px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--lo-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+}
+
+.lo-segment-btn:hover {
+    color: var(--lo-text);
+}
+
+.lo-segment-btn.active {
+    background: var(--lo-panel-hover);
+    color: var(--lo-accent);
+    font-weight: 600;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.lo-logo-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--lo-panel);
+    border: 1px solid var(--lo-border);
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.lo-logo-thumb {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 3px;
+    box-sizing: border-box;
+}
+
+.lo-logo-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.lo-logo-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.lo-logo-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--lo-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lo-logo-badge {
+    font-size: 11px;
+    color: var(--lo-text-secondary);
+    letter-spacing: 0.2px;
+}
+
+.lo-logo-delete-btn {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--lo-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+    margin: 0;
+    outline: none;
+}
+
+.lo-logo-delete-btn:hover {
+    background: rgba(255, 70, 70, 0.15);
+    border-color: rgba(255, 70, 70, 0.3);
+    color: #ff6b6b;
+    transform: scale(1.05);
+}
+
+.lo-logo-delete-btn:active {
+    transform: scale(0.95);
+}
+
 #lo-project-name{
     padding:10px 12px;
     background:var(--lo-panel);
@@ -890,11 +1035,11 @@ textarea:focus{
 
     color: #fff;
 
-    pointer-events: auto;
+    pointer-events: none;
 
     transition:
-        opacity 0.3s ease,
-        transform 0.3s ease;
+        opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     z-index: 999999;
     padding-bottom: 4px;
@@ -911,6 +1056,7 @@ textarea:focus{
 
 #lo-tour-card.visible {
     opacity: 1;
+    pointer-events: auto;
 
     transform:
         translateX(-50%)

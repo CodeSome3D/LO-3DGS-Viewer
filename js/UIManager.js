@@ -151,6 +151,74 @@ export class UIManager {
 
                         </div>
 
+                        <div class="lo-section" style="margin-top: 8px;">
+
+                            <div class="lo-section-title">Viewer Logo</div>
+
+                            <label class="lo-checkbox-row">
+                                <input
+                                    id="lo-viewer-logo-visible"
+                                    type="checkbox"
+                                    checked>
+                                <span>Show logo in Viewer</span>
+                            </label>
+
+                            <div id="lo-viewer-logo-options" style="margin-top: 10px;">
+
+                                <div class="lo-segmented-control">
+                                    <button
+                                        id="lo-logo-type-default"
+                                        class="lo-segment-btn active"
+                                        type="button">
+                                        LightOrigin
+                                    </button>
+                                    <button
+                                        id="lo-logo-type-custom"
+                                        class="lo-segment-btn"
+                                        type="button">
+                                        Custom
+                                    </button>
+                                </div>
+
+                                <div id="lo-viewer-logo-custom-panel" style="display: none; margin-top: 10px;">
+                                    <button
+                                        id="lo-viewer-logo-upload-btn"
+                                        class="lo-button"
+                                        type="button"
+                                        style="margin: 0 0 8px 0;">
+                                        📁 Choose File (PNG, SVG)
+                                    </button>
+                                    <input
+                                        id="lo-viewer-logo-file-input"
+                                        type="file"
+                                        accept=".png,.svg,.webp,.jpg,.jpeg,image/png,image/svg+xml"
+                                        style="display: none;">
+
+                                    <div id="lo-viewer-logo-preview-box" class="lo-logo-card" style="display: none;">
+                                        <div class="lo-logo-thumb">
+                                            <img id="lo-viewer-logo-preview-img" src="" alt="Logo">
+                                        </div>
+                                        <div class="lo-logo-info">
+                                            <div id="lo-viewer-logo-filename" class="lo-logo-name"></div>
+                                            <div class="lo-logo-badge">Custom Logo</div>
+                                        </div>
+                                        <button
+                                            id="lo-viewer-logo-remove-btn"
+                                            class="lo-logo-delete-btn"
+                                            type="button"
+                                            title="Reset to LightOrigin logo">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
                         <button
                             id="lo-set-initial-view"
                             class="lo-button"
@@ -516,6 +584,113 @@ export class UIManager {
                 this.lo.exportManager?.exportStandaloneZip();
             };
         }
+
+        // Viewer Logo Controls
+        const logoVisibleCheckbox = document.getElementById("lo-viewer-logo-visible");
+        const logoOptionsContainer = document.getElementById("lo-viewer-logo-options");
+        const logoTypeDefaultBtn = document.getElementById("lo-logo-type-default");
+        const logoTypeCustomBtn = document.getElementById("lo-logo-type-custom");
+        const logoCustomPanel = document.getElementById("lo-viewer-logo-custom-panel");
+        const logoUploadBtn = document.getElementById("lo-viewer-logo-upload-btn");
+        const logoFileInput = document.getElementById("lo-viewer-logo-file-input");
+        const logoPreviewBox = document.getElementById("lo-viewer-logo-preview-box");
+        const logoPreviewImg = document.getElementById("lo-viewer-logo-preview-img");
+        const logoFilename = document.getElementById("lo-viewer-logo-filename");
+        const logoRemoveBtn = document.getElementById("lo-viewer-logo-remove-btn");
+
+        this.updateViewerLogoUI = () => {
+            const config = this.lo.projectcard.viewerLogo || { visible: true, type: "default" };
+            if (logoVisibleCheckbox) {
+                logoVisibleCheckbox.checked = config.visible !== false;
+            }
+            if (logoOptionsContainer) {
+                logoOptionsContainer.style.display = config.visible !== false ? "block" : "none";
+            }
+            const isCustom = config.type === "custom";
+            if (logoTypeDefaultBtn) logoTypeDefaultBtn.classList.toggle("active", !isCustom);
+            if (logoTypeCustomBtn) logoTypeCustomBtn.classList.toggle("active", isCustom);
+            if (logoCustomPanel) logoCustomPanel.style.display = isCustom ? "block" : "none";
+
+            if (isCustom && config.url) {
+                if (logoPreviewBox) logoPreviewBox.style.display = "flex";
+                if (logoPreviewImg) logoPreviewImg.src = config.url;
+                if (logoFilename) logoFilename.textContent = config.filename || "Custom Logo";
+            } else {
+                if (logoPreviewBox) logoPreviewBox.style.display = "none";
+            }
+        };
+
+        if (logoVisibleCheckbox) {
+            logoVisibleCheckbox.onchange = () => {
+                this.lo.projectcard.viewerLogo ??= { type: "default" };
+                this.lo.projectcard.viewerLogo.visible = logoVisibleCheckbox.checked;
+                if (logoOptionsContainer) {
+                    logoOptionsContainer.style.display = logoVisibleCheckbox.checked ? "block" : "none";
+                }
+                this.lo.updateViewerLogo?.();
+            };
+        }
+
+        if (logoTypeDefaultBtn) {
+            logoTypeDefaultBtn.onclick = () => {
+                this.lo.projectcard.viewerLogo ??= {};
+                this.lo.projectcard.viewerLogo.type = "default";
+                this.updateViewerLogoUI();
+                this.lo.updateViewerLogo?.();
+            };
+        }
+
+        if (logoTypeCustomBtn) {
+            logoTypeCustomBtn.onclick = () => {
+                this.lo.projectcard.viewerLogo ??= {};
+                this.lo.projectcard.viewerLogo.type = "custom";
+                this.updateViewerLogoUI();
+                this.lo.updateViewerLogo?.();
+                if (!this.lo.projectcard.viewerLogo.url && logoFileInput) {
+                    logoFileInput.click();
+                }
+            };
+        }
+
+        if (logoUploadBtn && logoFileInput) {
+            logoUploadBtn.onclick = () => logoFileInput.click();
+            logoFileInput.onchange = (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (loadEvt) => {
+                    const dataUrl = loadEvt.target.result;
+                    this.lo.projectcard.viewerLogo = {
+                        visible: true,
+                        type: "custom",
+                        url: dataUrl,
+                        filename: file.name
+                    };
+                    this.updateViewerLogoUI();
+                    this.lo.updateViewerLogo?.();
+                    this.showToast(`✓ Logo set: ${file.name}`);
+                };
+                reader.readAsDataURL(file);
+                logoFileInput.value = "";
+            };
+        }
+
+        if (logoRemoveBtn) {
+            logoRemoveBtn.onclick = () => {
+                this.lo.projectcard.viewerLogo = {
+                    visible: true,
+                    type: "default",
+                    url: "",
+                    filename: ""
+                };
+                this.updateViewerLogoUI();
+                this.lo.updateViewerLogo?.();
+                this.showToast("Reset to LightOrigin logo");
+            };
+        }
+
+        this.updateViewerLogoUI();
 
         type.onchange = () => {
 

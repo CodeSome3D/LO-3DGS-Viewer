@@ -124,6 +124,13 @@ export class ProjectManager {
 
         };
 
+        this.lo.projectcard.viewerLogo ??= {
+            visible: true,
+            type: "default",
+            url: "",
+            filename: ""
+        };
+
         this.lo.projectcard.autospinOnLoad ??= false;
 
         this.lo.projectcard.scene ??= "./scene.sog";
@@ -384,9 +391,12 @@ export class ProjectManager {
             }
         }
 
+        this.lo.updateViewerLogo?.();
+
         if (this.lo.isEditor()) {
 
             this.lo.uiManager?.refresh();
+            this.lo.uiManager?.updateViewerLogoUI?.();
         }
     }
 

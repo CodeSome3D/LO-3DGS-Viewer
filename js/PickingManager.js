@@ -82,6 +82,16 @@ export class PickingManager {
             return;
         }
 
+        // If not placing or moving a hotspot in editor mode, clicking free space dismisses
+        // the hotspot description card without flying the camera away
+        if (!this.lo.waitingForHotspotPick && !this.lo.moveHotspotMode) {
+            const tourUI = this.lo.tourUIManager;
+            if (tourUI?.isCardVisible?.() || (Date.now() - (tourUI?._lastDismissTime || 0) < 300)) {
+                tourUI?.dismiss();
+                return;
+            }
+        }
+
         const canvas = this.lo.canvas;
 
         const rect = canvas.getBoundingClientRect();

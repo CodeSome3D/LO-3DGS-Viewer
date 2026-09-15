@@ -4,6 +4,9 @@ export class TourUIManager {
 
     constructor(lo) {
         this.lo = lo;
+        this._lastDismissTime = 0;
+        this._listenersAttached = false;
+        this._updateTimer = null;
     }
 
     create() {
@@ -112,6 +115,8 @@ export class TourUIManager {
 
         document.body.appendChild(card);
 
+        this.attachListeners();
+
         previous.onclick = e => {
 
             e.stopPropagation();
@@ -132,6 +137,123 @@ export class TourUIManager {
 
             this.lo.tourManager.next();
         };
+    }
+
+    attachListeners() {
+        if (this._listenersAttached) return;
+        this._listenersAttached = true;
+
+        let pointerDownPos = null;
+        const dragThreshold = 8;
+
+        const onPointerDown = e => {
+            if (e.button !== undefined && e.button !== 0) return;
+            pointerDownPos = { x: e.clientX, y: e.clientY };
+        };
+
+        const onPointerUp = e => {
+            if (!pointerDownPos) return;
+            const dx = e.clientX - pointerDownPos.x;
+            const dy = e.clientY - pointerDownPos.y;
+            pointerDownPos = null;
+
+            // If user moved pointer beyond threshold, it's a drag (camera orbit / pan), not a click
+            if (Math.hypot(dx, dy) > dragThreshold) {
+                return;
+            }
+
+            // Only dismiss if the tour card is currently visible
+            if (!this.isCardVisible()) {
+                return;
+            }
+
+            const target = e.target;
+            if (!target) return;
+
+            // If clicked anywhere inside the card, don't dismiss
+            if (target.closest("#lo-tour-card")) {
+                return;
+            }
+
+            // If clicked on a hotspot marker, let hotspot click handler run
+            if (target.closest(".lo-hotspot")) {
+                return;
+            }
+
+            // If clicked on toolbar, sidebar, modal, or toast, don't dismiss
+            if (
+                target.closest("#lo-viewer-toolbar") ||
+                target.closest("#lo-sidebar") ||
+                target.closest(".lo-modal") ||
+                target.closest(".lo-modal-backdrop") ||
+                target.closest(".lo-toast") ||
+                target.closest(".lo-context-menu")
+            ) {
+                return;
+            }
+
+            // Editor placement/move modes should not be interrupted
+            if (this.lo.waitingForHotspotPick || this.lo.moveHotspotMode) {
+                return;
+            }
+
+            // Click on free space!
+            this.dismiss();
+        };
+
+        window.addEventListener("pointerdown", onPointerDown, { capture: true, passive: true });
+        window.addEventListener("pointerup", onPointerUp, { capture: true, passive: true });
+
+        window.addEventListener("keydown", e => {
+            if (e.key === "Escape" && this.isCardVisible()) {
+                this.dismiss();
+            }
+        });
+    }
+
+    isCardVisible() {
+        const card = document.getElementById("lo-tour-card");
+        return Boolean(card && card.classList.contains("visible"));
+    }
+
+    dismiss() {
+        if (this._updateTimer) {
+            clearTimeout(this._updateTimer);
+            this._updateTimer = null;
+        }
+
+        const card = document.getElementById("lo-tour-card");
+        if (!card) return false;
+
+        const wasVisible = card.classList.contains("visible");
+        card.classList.remove("visible");
+
+        // Stop any media playing in container
+        const mediaContainer = document.getElementById("lo-tour-media-container");
+        if (mediaContainer) {
+            mediaContainer.querySelectorAll("video").forEach(v => {
+                try { v.pause(); } catch (_) {}
+            });
+            mediaContainer.querySelectorAll("audio").forEach(a => {
+                try { a.pause(); } catch (_) {}
+            });
+            mediaContainer.querySelectorAll("iframe").forEach(iframe => {
+                const src = iframe.src;
+                iframe.src = "";
+                iframe.src = src;
+            });
+        }
+
+        if (this.lo.tourManager) {
+            if (this.lo.tourManager.isPlaying) {
+                this.lo.tourManager.pauseAutoplay(false);
+            }
+            this.lo.tourManager.currentHotspotIndex = -1;
+        }
+
+        this.lo.clearHotspotSelection?.();
+        this._lastDismissTime = Date.now();
+        return wasVisible;
     }
 
     setPlayState(isPlaying) {
@@ -169,6 +291,11 @@ export class TourUIManager {
 
     update(hotspot) {
 
+        if (this._updateTimer) {
+            clearTimeout(this._updateTimer);
+            this._updateTimer = null;
+        }
+
         const card =
             document.getElementById("lo-tour-card");
 
@@ -199,9 +326,7 @@ export class TourUIManager {
         }
 
         if (!hotspot || hotspot.type === "portal") {
-
-            card.classList.remove("visible");
-
+            this.dismiss();
             return;
         }
 
@@ -217,7 +342,8 @@ export class TourUIManager {
 
         card.classList.remove("visible");
 
-        setTimeout(() => {
+        this._updateTimer = setTimeout(() => {
+            this._updateTimer = null;
 
             title.textContent =
                 hotspot.title || "";

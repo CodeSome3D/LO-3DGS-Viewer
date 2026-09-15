@@ -645,10 +645,62 @@ window.lo = {
             this.applyBackground();
         }
 
-        if (headerLogo) headerLogo.src = t.logo;
-        if (lightoriginLogo) {
-            lightoriginLogo.src = t.logoIcon;
-            lightoriginLogo.style.filter = "none";
+        if (headerLogo) {
+            headerLogo.src = t.logo;
+            headerLogo.alt = "LightOrigin";
+        }
+        this.updateViewerLogo();
+    },
+
+    updateViewerLogo() {
+        const logoContainer = document.getElementById("lightorigin-logo");
+        const logoImg = logoContainer?.querySelector("img");
+        const headerLogo = document.getElementById("lo-header-logo");
+
+        // 1. Editor Header Logo: ALWAYS LightOrigin official branding
+        if (headerLogo) {
+            const currentTheme = this.projectcard?.theme || "dark";
+            const themeConfig = this.THEMES?.[currentTheme] || {};
+            headerLogo.src = themeConfig.logo || "logo_LO_hor.png";
+            headerLogo.alt = "LightOrigin";
+        }
+
+        // 2. In Editor Mode: hide floating viewer logo to keep editor clean
+        if (this.isEditor()) {
+            if (logoContainer) {
+                logoContainer.style.display = "none";
+            }
+            return;
+        }
+
+        // 3. In Viewer Mode:
+        if (!logoContainer || !logoImg) return;
+
+        const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+        if (params && (params.get("logo") === "none" || params.get("logo") === "false" || params.get("nologo") === "true")) {
+            logoContainer.style.display = "none";
+            return;
+        }
+
+        const config = this.projectcard?.viewerLogo || { visible: true, type: "default" };
+
+        if (config.visible === false) {
+            logoContainer.style.display = "none";
+            return;
+        }
+
+        logoContainer.style.display = "";
+
+        if (config.type === "custom" && config.url) {
+            logoImg.src = config.url;
+            logoImg.alt = config.filename || "Viewer Logo";
+            logoImg.style.filter = "none";
+        } else {
+            const currentTheme = this.projectcard?.theme || "dark";
+            const themeConfig = this.THEMES?.[currentTheme] || {};
+            logoImg.src = themeConfig.logoIcon || "logo_LO.png";
+            logoImg.alt = "LightOrigin";
+            logoImg.style.filter = "none";
         }
     },
 
@@ -689,6 +741,7 @@ function init() {
 
 
     if (window.lo.isEditor()) {
+        window.lo.updateViewerLogo();
         window.lo.createUI();
         if (projectUrl) {
             window.lo.loadProjectFromURL(projectUrl).catch(err => {
@@ -885,6 +938,8 @@ function init() {
             const tb = document.getElementById("lo-viewer-toolbar");
             if (tb) tb.style.display = "none";
         }
+
+        window.lo.updateViewerLogo();
 
         const logo =
             document.getElementById("viewerBranding");
