@@ -752,9 +752,30 @@ function init() {
     if (window.lo.isEditor()) {
         window.lo.updateViewerLogo();
         window.lo.createUI();
+
         if (projectUrl) {
-            window.lo.loadProjectFromURL(projectUrl).catch(err => {
-                console.warn("Editor project load warning:", err);
+            const slug = window.lo.projectManager.extractProjectSlug(projectUrl);
+            const draft = window.lo.projectManager.getSavedDraft();
+            if (draft && (draft.projectSlug === slug || window.lo.projectManager.extractProjectSlug(draft.sourceContext) === slug)) {
+                window.lo.projectManager.restoreDraft(slug).then(restored => {
+                    if (!restored) {
+                        window.lo.loadProjectFromURL(projectUrl).catch(err => {
+                            console.warn("Editor project load warning:", err);
+                        });
+                    }
+                }).catch(() => {
+                    window.lo.loadProjectFromURL(projectUrl).catch(err => {
+                        console.warn("Editor project load warning:", err);
+                    });
+                });
+            } else {
+                window.lo.loadProjectFromURL(projectUrl).catch(err => {
+                    console.warn("Editor project load warning:", err);
+                });
+            }
+        } else {
+            window.lo.projectManager.restoreDraft().catch(err => {
+                console.warn("Draft restore warning:", err);
             });
         }
     }

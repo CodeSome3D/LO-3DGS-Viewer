@@ -1,0 +1,100 @@
+{
+  "project": {
+    "name": "Rat",
+    "version": 1,
+    "theme": "dark",
+    "autospinOnLoad": true,
+    "background": {
+      "type": "color",
+      "color": "#0A1D24",
+      "gradient": {
+        "mode": "linear",
+        "angle": 82,
+        "colors": [
+          "#202020",
+          "#606060"
+        ]
+      },
+      "image": {
+        "url": "",
+        "fit": "cover"
+      },
+      "panorama": {
+        "url": "",
+        "rotation": 0
+      }
+    },
+    "viewerLogo": {
+      "type": "default"
+    },
+    "scene": "./projects/04_rat/04_rat.sog"
+  },
+  "cameras": {
+    "camera-0": {
+      "position": {
+        "x": 0.3685715929447592,
+        "y": 0.5123789789164528,
+        "z": -0.23651312278658643
+      },
+      "angles": {
+        "x": -29.54541879099014,
+        "y": -128.01819393828663,
+        "z": 0
+      },
+      "distance": 7.319705905864144,
+      "fov": 75
+    },
+    "camera-1": {
+      "position": {
+        "x": -0.03696040150863514,
+        "y": 0.08302743086123503,
+        "z": -0.025802397825914127
+      },
+      "angles": {
+        "x": -30.59541879099012,
+        "y": -45.36819393828657,
+        "z": 0
+      },
+      "distance": 0.5774184298669076,
+      "fov": 75
+    },
+    "camera-2": {
+      "position": {
+        "x": -1.2789667516214198,
+        "y": 1.332213205168181,
+        "z": 0.3968821050989911
+      },
+      "angles": {
+        "x": -9.798181341904773,
+        "y": -56.30138266819696,
+        "z": 0
+      },
+      "distance": 3.3722107302127915,
+      "fov": 75
+    }
+  },
+  "hotspots": [
+    {
+      "id": "1789541772990",
+      "title": "IKEA Rat",
+      "description": "GOSIG RÅTTA\n904.904.76\n23 cm",
+      "color": "#ff7a00",
+      "type": "hotspot",
+      "icon": "tag",
+      "customSvg": "",
+      "mediaType": "none",
+      "mediaUrl": "",
+      "actionButton": {
+        "label": "See online",
+        "url": "https://www.ikea.com/pl/pl/p/gosig-ratta-pluszak-szary-bez-90490476/"
+      },
+      "targetUrl": "",
+      "position": {
+        "x": -1.2107327618922166,
+        "y": 1.6003864460793629,
+        "z": 0.41572710860930134
+      },
+      "cameraId": "camera-2"
+    }
+  ]
+}

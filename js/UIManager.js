@@ -45,377 +45,329 @@ export class UIManager {
             <div class="lo-section">
                 <h2>Project</h2>
                 <div id="lo-project">
-
                     <div id="lo-project-name"></div>
+                </div>
+            </div>
 
-                    <div class="lo-section">
+            <div class="lo-section">
+                <div class="lo-section-title">Background</div>
 
-                        <div class="lo-section-title">Background</div>
+                <label for="lo-bg-type">Type</label>
+                <select id="lo-bg-type" class="lo-select">
+                    <option value="transparent">Transparent</option>
+                    <option value="color">Solid Color</option>
+                    <option value="gradient">Gradient</option>
+                    <option value="image">Image</option>
+                    <option value="panorama">360° Panorama</option>
+                </select>
 
-                        <label for="lo-bg-type">Type</label>
+                <div id="lo-color-controls">
+                    <label for="lo-bg-picker">Color</label>
+                    <input
+                        id="lo-bg-picker"
+                        type="color"
+                        value="#1f1f1f">
+                </div>
 
-                        <select id="lo-bg-type" class="lo-select">
-                            <option value="transparent">Transparent</option>
-                            <option value="color">Solid Color</option>
-                            <option value="gradient">Gradient</option>
-                            <option value="image">Image</option>
-                            <option value="panorama">360° Panorama</option>
-                        </select>
+                <div id="lo-gradient-controls" class="lo-gradient-row">
+                    <input
+                        id="lo-gradient-color1"
+                        class="lo-gradient-swatch"
+                        type="color"
+                        value="#202020"
+                        title="Gradient Color 1">
 
-                        <label for="lo-bg-picker">Color</label>
+                    <input
+                        id="lo-gradient-color2"
+                        class="lo-gradient-swatch"
+                        type="color"
+                        value="#606060"
+                        title="Gradient Color 2">
 
+                    <label class="lo-gradient-angle-label" for="lo-gradient-angle">
+                        Angle <span id="lo-gradient-angle-value">135°</span>
+                    </label>
 
-                        <div class="lo-section">
+                    <input
+                        id="lo-gradient-angle"
+                        class="lo-gradient-slider"
+                        type="range"
+                        min="0"
+                        max="360"
+                        value="135">
+                </div>
 
-                            <div class="lo-section-title">Editor Theme</div>
+                <div id="lo-image-controls">
+                    <button
+                        id="lo-bg-image-select"
+                        class="lo-button">
+                        Select Image
+                    </button>
+                    <div id="lo-bg-image-name">
+                        No image selected
+                    </div>
+                </div>
 
-                            <div class="lo-theme-swatches" id="lo-theme-swatches">
+                <div id="lo-bg-panorama-settings" style="display:none">
+                    <button
+                        id="lo-bg-panorama-select"
+                        class="lo-button">
+                        Select Panorama
+                    </button>
+                    <div id="lo-bg-panorama-name">
+                        No panorama selected
+                    </div>
+                    <label for="lo-bg-panorama-rotation">
+                        Rotation:
+                        <span id="lo-bg-panorama-rotation-value">0°</span>
+                    </label>
+                    <input
+                        id="lo-bg-panorama-rotation"
+                        type="range"
+                        min="-180"
+                        max="180"
+                        step="1"
+                        value="0">
+                </div>
+            </div>
 
-                                <div class="lo-theme-swatch" data-theme="dark" title="Dark" id="lo-swatch-dark">
-                                    <div class="lo-theme-swatch-inner">
-                                        <span style="background:#262626"></span>
-                                        <span style="background:#22C7B8"></span>
-                                        <span style="background:#2c2c2c"></span>
-                                        <span style="background:#353535"></span>
-                                    </div>
-                                    <div class="lo-theme-swatch-label">Dark</div>
-                                </div>
+            <div class="lo-section">
+                <div class="lo-section-title">Tour Playback</div>
 
-                                <div class="lo-theme-swatch" data-theme="light" title="Light" id="lo-swatch-light">
-                                    <div class="lo-theme-swatch-inner">
-                                        <span style="background:#f2f2f2"></span>
-                                        <span style="background:#11998E"></span>
-                                        <span style="background:#ffffff"></span>
-                                        <span style="background:#cccccc"></span>
-                                    </div>
-                                    <div class="lo-theme-swatch-label">Light</div>
-                                </div>
+                <label class="lo-checkbox-row">
+                    <input
+                        id="lo-autospin-on-load"
+                        type="checkbox">
+                    <span>Autospin on load</span>
+                </label>
 
-                                <div class="lo-theme-swatch" data-theme="midnight" title="Midnight" id="lo-swatch-midnight">
-                                    <div class="lo-theme-swatch-inner">
-                                        <span style="background:#080d1a"></span>
-                                        <span style="background:#9b87ff"></span>
-                                        <span style="background:#0e1628"></span>
-                                        <span style="background:#131c30"></span>
-                                    </div>
-                                    <div class="lo-theme-swatch-label">Midnight</div>
-                                </div>
+                <label class="lo-checkbox-row" style="margin-top: 6px;">
+                    <input
+                        id="lo-tour-autoplay-on-load"
+                        type="checkbox">
+                    <span>Autoplay tour on load</span>
+                </label>
 
-                                <div class="lo-theme-swatch" data-theme="earth" title="Earth" id="lo-swatch-earth">
-                                    <div class="lo-theme-swatch-inner">
-                                        <span style="background:#16100a"></span>
-                                        <span style="background:#e8893a"></span>
-                                        <span style="background:#1f1710"></span>
-                                        <span style="background:#231a12"></span>
-                                    </div>
-                                    <div class="lo-theme-swatch-label">Earth</div>
-                                </div>
+                <div style="margin-top: 10px;">
+                    <div class="lo-section-title" style="margin-bottom: 6px;">Tour Duration</div>
+                    <select id="lo-tour-dwell-time" class="lo-select">
+                        <option value="3000">3 Seconds</option>
+                        <option value="5000">5 Seconds (Default)</option>
+                        <option value="8000">8 Seconds</option>
+                        <option value="10000">10 Seconds</option>
+                        <option value="15000">15 Seconds</option>
+                    </select>
+                </div>
+            </div>
 
-                            </div>
+            <div class="lo-section">
+                <div class="lo-section-title">Viewer Logo</div>
 
-                        </div>
+                <label class="lo-checkbox-row">
+                    <input
+                        id="lo-viewer-logo-visible"
+                        type="checkbox"
+                        checked>
+                    <span>Show logo in Viewer</span>
+                </label>
 
-
-
-                        <label class="lo-checkbox-row">
-
-                            <input
-                                id="lo-autospin-on-load"
-                                type="checkbox">
-
-                            <span>Autospin on load</span>
-
-                        </label>
-
-                        <label class="lo-checkbox-row" style="margin-top: 4px;">
-
-                            <input
-                                id="lo-tour-autoplay-on-load"
-                                type="checkbox">
-
-                            <span>Autoplay tour on load</span>
-
-                        </label>
-
-                        <div class="lo-section" style="margin-top: 8px;">
-
-                            <div class="lo-section-title">Tour Step Duration</div>
-
-                            <select id="lo-tour-dwell-time" class="lo-select">
-                                <option value="3000">3 Seconds</option>
-                                <option value="5000">5 Seconds (Default)</option>
-                                <option value="8000">8 Seconds</option>
-                                <option value="10000">10 Seconds</option>
-                                <option value="15000">15 Seconds</option>
-                            </select>
-
-                        </div>
-
-                        <div class="lo-section" style="margin-top: 8px;">
-
-                            <div class="lo-section-title">Viewer Logo</div>
-
-                            <label class="lo-checkbox-row">
-                                <input
-                                    id="lo-viewer-logo-visible"
-                                    type="checkbox"
-                                    checked>
-                                <span>Show logo in Viewer</span>
-                            </label>
-
-                            <div id="lo-viewer-logo-options" style="margin-top: 10px;">
-
-                                <div class="lo-segmented-control">
-                                    <button
-                                        id="lo-logo-type-default"
-                                        class="lo-segment-btn active"
-                                        type="button">
-                                        LightOrigin
-                                    </button>
-                                    <button
-                                        id="lo-logo-type-custom"
-                                        class="lo-segment-btn"
-                                        type="button">
-                                        Custom
-                                    </button>
-                                </div>
-
-                                <div id="lo-viewer-logo-custom-panel" style="display: none; margin-top: 10px;">
-                                    <button
-                                        id="lo-viewer-logo-upload-btn"
-                                        class="lo-button"
-                                        type="button"
-                                        style="margin: 0 0 8px 0;">
-                                        📁 Choose File (PNG, SVG)
-                                    </button>
-                                    <input
-                                        id="lo-viewer-logo-file-input"
-                                        type="file"
-                                        accept=".png,.svg,.webp,.jpg,.jpeg,image/png,image/svg+xml"
-                                        style="display: none;">
-
-                                    <div id="lo-viewer-logo-preview-box" class="lo-logo-card" style="display: none;">
-                                        <div class="lo-logo-thumb">
-                                            <img id="lo-viewer-logo-preview-img" src="" alt="Logo">
-                                        </div>
-                                        <div class="lo-logo-info">
-                                            <div id="lo-viewer-logo-filename" class="lo-logo-name"></div>
-                                            <div class="lo-logo-badge">Custom Logo</div>
-                                        </div>
-                                        <button
-                                            id="lo-viewer-logo-remove-btn"
-                                            class="lo-logo-delete-btn"
-                                            type="button"
-                                            title="Reset to LightOrigin logo">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                        </div>
-
+                <div id="lo-viewer-logo-options" style="margin-top: 10px;">
+                    <div class="lo-segmented-control">
                         <button
-                            id="lo-set-initial-view"
-                            class="lo-button"
-                            style="margin-top: 10px;">
-
-                            Set Initial View
-
+                            id="lo-logo-type-default"
+                            class="lo-segment-btn active"
+                            type="button">
+                            LightOrigin
                         </button>
-
-                        <div id="lo-color-controls">
-
-                            <label for="lo-bg-picker">
-                                Background Color
-                            </label>
-
-                            <input
-                                id="lo-bg-picker"
-                                type="color"
-                                value="#1f1f1f">
-
-                        </div>
-
-                        <div id="lo-gradient-controls">
-
-                            <label>Color 1</label>
-
-                            <input
-                                id="lo-gradient-color1"
-                                type="color"
-                                value="#202020">
-
-                            <label>Color 2</label>
-
-                            <input
-                                id="lo-gradient-color2"
-                                type="color"
-                                value="#606060">
-
-                            <label>Angle</label>
-
-                            <input
-                                id="lo-gradient-angle"
-                                type="range"
-                                min="0"
-                                max="360"
-                                value="135">
-
-                        </div>
-
-                        <div id="lo-image-controls">
-
-                            <button
-                                id="lo-bg-image-select"
-                                class="lo-button">
-
-                                Select Image
-
-                            </button>
-
-                            <div id="lo-bg-image-name">
-
-                                No image selected
-
-                            </div>
-
-                        </div>
-
-                        <div id="lo-bg-panorama-settings" style="display:none">
-
-                            <button
-                                id="lo-bg-panorama-select"
-                                class="lo-button">
-
-                                Select Panorama
-
-                            </button>
-
-                            <div id="lo-bg-panorama-name">
-
-                                No panorama selected
-
-                            </div>
-
-                            <label for="lo-bg-panorama-rotation">
-                                Rotation:
-                                <span id="lo-bg-panorama-rotation-value">0°</span>
-                            </label>
-
-                            <input
-                                id="lo-bg-panorama-rotation"
-                                type="range"
-                                min="-180"
-                                max="180"
-                                step="1"
-                                value="0">
-
-                        </div>
-
-                        <div class="lo-section">
-
-                            <div class="lo-section-title">3DGS Model</div>
-
-                            <div class="lo-toolbar">
-
-                                <button
-                                    id="lo-upload-gsplat"
-                                    class="lo-button lo-toolbar-button"
-                                    title="Upload a .sog or .ply 3DGS file">
-                                    ⬆ Upload 3DGS
-                                </button>
-
-                                <button
-                                    id="lo-delete-gsplat"
-                                    class="lo-button lo-toolbar-button lo-button-danger"
-                                    title="Remove the current 3DGS model">
-                                    🗑 Delete 3DGS
-                                </button>
-
-                            </div>
-
-                        </div>
-
                         <button
-                            id="lo-save-project"
-                            class="lo-button">
-                            💾 Save Project
-                        </button>
-
-                        <button
-                            id="lo-open-project"
-                            class="lo-button">
-                            📂 Open Project
-                        </button>
-
-                        <button
-                            id="lo-share-embed"
-                            class="lo-button">
-                            🔗 Share & Embed Tour
-                        </button>
-
-                        <button
-                            id="lo-export-standalone-zip"
-                            class="lo-button">
-                            📦 Export Standalone (.zip)
+                            id="lo-logo-type-custom"
+                            class="lo-segment-btn"
+                            type="button">
+                            Custom
                         </button>
                     </div>
 
+                    <div id="lo-viewer-logo-custom-panel" style="display: none; margin-top: 10px;">
+                        <button
+                            id="lo-viewer-logo-upload-btn"
+                            class="lo-button"
+                            type="button"
+                            style="margin: 0 0 8px 0;">
+                            📁 Choose File (PNG, SVG)
+                        </button>
+                        <input
+                            id="lo-viewer-logo-file-input"
+                            type="file"
+                            accept=".png,.svg,.webp,.jpg,.jpeg,image/png,image/svg+xml"
+                            style="display: none;">
+
+                        <div id="lo-viewer-logo-preview-box" class="lo-logo-card" style="display: none;">
+                            <div class="lo-logo-thumb">
+                                <img id="lo-viewer-logo-preview-img" src="" alt="Logo">
+                            </div>
+                            <div class="lo-logo-info">
+                                <div id="lo-viewer-logo-filename" class="lo-logo-name"></div>
+                                <div class="lo-logo-badge">Custom Logo</div>
+                            </div>
+                            <button
+                                id="lo-viewer-logo-remove-btn"
+                                class="lo-logo-delete-btn"
+                                type="button"
+                                title="Reset to LightOrigin logo">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lo-section">
+                <div class="lo-section-title">Initial View</div>
+                <button
+                    id="lo-set-initial-view"
+                    class="lo-button"
+                    style="margin-top: 4px; margin-bottom: 0;">
+                    🎥 Set Initial View
+                </button>
+            </div>
+
+            <div class="lo-section">
+                <div class="lo-section-title">3DGS Model</div>
+                <div class="lo-toolbar">
+                    <button
+                        id="lo-upload-gsplat"
+                        class="lo-button lo-toolbar-button"
+                        title="Upload a .sog or .ply 3DGS file">
+                        ⬆ Upload 3DGS
+                    </button>
+                    <button
+                        id="lo-delete-gsplat"
+                        class="lo-button lo-toolbar-button lo-button-danger"
+                        title="Remove the current 3DGS model">
+                        🗑 Delete 3DGS
+                    </button>
                 </div>
             </div>
 
             <div class="lo-section">
                 <h2>Hotspots</h2>
-
-                    <div class="lo-toolbar">
-
-                        <button
-                            id="lo-add-hotspot"
-                            class="lo-button lo-toolbar-button">
-                            + Add Hotspot
-                        </button>
-
-                    </div>
-
+                <div class="lo-toolbar">
+                    <button
+                        id="lo-add-hotspot"
+                        class="lo-button lo-toolbar-button">
+                        + Add Hotspot
+                    </button>
+                </div>
                 <div id="lo-hotspot-list"></div>
             </div>
 
             <div class="lo-section">
                 <h2>Portals 🌀</h2>
-
-                    <div class="lo-toolbar">
-
-                        <button
-                            id="lo-add-portal"
-                            class="lo-button lo-toolbar-button">
-                            + Add Portal
-                        </button>
-
-                    </div>
-
+                <div class="lo-toolbar">
+                    <button
+                        id="lo-add-portal"
+                        class="lo-button lo-toolbar-button">
+                        + Add Portal
+                    </button>
+                </div>
                 <div id="lo-portal-list"></div>
             </div>
 
             <div class="lo-section">
-
                 <h2>Properties</h2>
-
                 <div id="lo-properties">
-
                     <div class="lo-empty-state">
                         Select a hotspot to edit its properties.
                     </div>
-
                 </div>
+            </div>
 
+            <div class="lo-section">
+                <div class="lo-section-title">Project Actions</div>
+                <button
+                    id="lo-new-project"
+                    class="lo-button"
+                    style="background: rgba(255, 255, 255, 0.08); margin-bottom: 8px;">
+                    📄 New Project
+                </button>
+
+                <button
+                    id="lo-save-project"
+                    class="lo-button">
+                    💾 Save Project
+                </button>
+
+                <button
+                    id="lo-open-project"
+                    class="lo-button">
+                    📂 Open Project
+                </button>
+
+                <button
+                    id="lo-share-embed"
+                    class="lo-button">
+                    🔗 Share & Embed Tour
+                </button>
+
+                <button
+                    id="lo-export-standalone-zip"
+                    class="lo-button">
+                    📦 Export Standalone (.zip)
+                </button>
+            </div>
+
+            <div class="lo-section" style="border-bottom: none; margin-bottom: 30px;">
+                <div class="lo-section-title">Editor Theme</div>
+                <div class="lo-theme-swatches" id="lo-theme-swatches">
+                    <div class="lo-theme-swatch" data-theme="dark" title="Dark" id="lo-swatch-dark">
+                        <div class="lo-theme-swatch-inner">
+                            <span style="background:#262626"></span>
+                            <span style="background:#22C7B8"></span>
+                            <span style="background:#2c2c2c"></span>
+                            <span style="background:#353535"></span>
+                        </div>
+                        <div class="lo-theme-swatch-label">Dark</div>
+                    </div>
+
+                    <div class="lo-theme-swatch" data-theme="light" title="Light" id="lo-swatch-light">
+                        <div class="lo-theme-swatch-inner">
+                            <span style="background:#f2f2f2"></span>
+                            <span style="background:#11998E"></span>
+                            <span style="background:#ffffff"></span>
+                            <span style="background:#cccccc"></span>
+                        </div>
+                        <div class="lo-theme-swatch-label">Light</div>
+                    </div>
+
+                    <div class="lo-theme-swatch" data-theme="midnight" title="Midnight" id="lo-swatch-midnight">
+                        <div class="lo-theme-swatch-inner">
+                            <span style="background:#080d1a"></span>
+                            <span style="background:#9b87ff"></span>
+                            <span style="background:#0e1628"></span>
+                            <span style="background:#131c30"></span>
+                        </div>
+                        <div class="lo-theme-swatch-label">Midnight</div>
+                    </div>
+
+                    <div class="lo-theme-swatch" data-theme="earth" title="Earth" id="lo-swatch-earth">
+                        <div class="lo-theme-swatch-inner">
+                            <span style="background:#16100a"></span>
+                            <span style="background:#e8893a"></span>
+                            <span style="background:#1f1710"></span>
+                            <span style="background:#231a12"></span>
+                        </div>
+                        <div class="lo-theme-swatch-label">Earth</div>
+                    </div>
+                </div>
             </div>
         `;
         this.refresh();
+
+        sidebar.addEventListener("input", () => this.lo.projectManager?.saveDraft?.());
+        sidebar.addEventListener("change", () => this.lo.projectManager?.saveDraft?.());
 
         const uploadGsplatBtn = document.getElementById("lo-upload-gsplat");
         if (uploadGsplatBtn) {
@@ -434,6 +386,7 @@ export class UIManager {
                             }
                         });
                         this.showToast("✓ 3DGS loaded successfully");
+                        this.lo.projectManager?.saveDraft?.();
                     } catch (err) {
                         this.showToast("❌ Failed to load 3DGS model");
                     }
@@ -447,6 +400,7 @@ export class UIManager {
             deleteGsplatBtn.onclick = () => {
                 this.lo.unloadGsplat();
                 this.showToast("3DGS model removed");
+                this.lo.projectManager?.saveDraft?.();
             };
         }
 
@@ -489,7 +443,7 @@ export class UIManager {
 
         gradientControls.style.display =
             type.value === "gradient"
-            ? "block"
+            ? "flex"
             : "none";
 
         const gradientColor1 =
@@ -500,6 +454,13 @@ export class UIManager {
 
         const gradientAngle =
             document.getElementById("lo-gradient-angle");
+
+        const gradientAngleValue =
+            document.getElementById("lo-gradient-angle-value");
+
+        if (gradientAngle && gradientAngleValue) {
+            gradientAngleValue.textContent = `${gradientAngle.value}°`;
+        }
 
         const imageControls =
             document.getElementById("lo-image-controls");
@@ -543,7 +504,15 @@ export class UIManager {
                 if (this.lo.cameraManager) {
                     this.lo.cameras["camera-0"] = this.lo.cameraManager.capture();
                     this.lo.uiManager?.showToast("✓ Initial view set");
+                    this.lo.projectManager?.saveDraft?.();
                 }
+            };
+        }
+
+        const newProjectBtn = document.getElementById("lo-new-project");
+        if (newProjectBtn) {
+            newProjectBtn.onclick = () => {
+                this.lo.projectManager?.newProject();
             };
         }
 
@@ -628,6 +597,7 @@ export class UIManager {
                     logoOptionsContainer.style.display = logoVisibleCheckbox.checked ? "block" : "none";
                 }
                 this.lo.updateViewerLogo?.();
+                this.lo.projectManager?.saveDraft?.();
             };
         }
 
@@ -637,6 +607,7 @@ export class UIManager {
                 this.lo.projectcard.viewerLogo.type = "default";
                 this.updateViewerLogoUI();
                 this.lo.updateViewerLogo?.();
+                this.lo.projectManager?.saveDraft?.();
             };
         }
 
@@ -646,6 +617,7 @@ export class UIManager {
                 this.lo.projectcard.viewerLogo.type = "custom";
                 this.updateViewerLogoUI();
                 this.lo.updateViewerLogo?.();
+                this.lo.projectManager?.saveDraft?.();
                 if (!this.lo.projectcard.viewerLogo.url && logoFileInput) {
                     logoFileInput.click();
                 }
@@ -669,6 +641,7 @@ export class UIManager {
                     };
                     this.updateViewerLogoUI();
                     this.lo.updateViewerLogo?.();
+                    this.lo.projectManager?.saveDraft?.();
                     this.showToast(`✓ Logo set: ${file.name}`);
                 };
                 reader.readAsDataURL(file);
@@ -686,6 +659,7 @@ export class UIManager {
                 };
                 this.updateViewerLogoUI();
                 this.lo.updateViewerLogo?.();
+                this.lo.projectManager?.saveDraft?.();
                 this.showToast("Reset to LightOrigin logo");
             };
         }
@@ -701,7 +675,7 @@ export class UIManager {
 
             gradientControls.style.display =
                 type.value === "gradient"
-                ? "block"
+                ? "flex"
                 : "none";
 
             imageControls.style.display =
@@ -774,6 +748,7 @@ export class UIManager {
                 this.lo.projectcard.theme = t;
                 this.lo.setTheme(t);
                 this._updateThemeSwatches(t);
+                this.lo.projectManager?.saveDraft?.();
             });
         }
 
@@ -811,6 +786,10 @@ export class UIManager {
 
             else {
 
+                if (gradientAngleValue && gradientAngle) {
+                    gradientAngleValue.textContent = `${gradientAngle.value}°`;
+                }
+
                 this.lo.projectManager
                     .setBackgroundGradient(
 
@@ -834,8 +813,12 @@ export class UIManager {
         gradientColor2.oninput =
             updateGradient;
 
-        gradientAngle.oninput =
-            updateGradient;
+        gradientAngle.oninput = () => {
+            if (gradientAngleValue && gradientAngle) {
+                gradientAngleValue.textContent = `${gradientAngle.value}°`;
+            }
+            updateGradient();
+        };
 
         imageButton.onclick = () => {
 
@@ -1045,9 +1028,23 @@ export class UIManager {
 
                 bg.type === "gradient"
 
-                ? "block"
+                ? "flex"
 
                 : "none";
+        }
+
+        if (bg.gradient) {
+            const g1 = document.getElementById("lo-gradient-color1");
+            const g2 = document.getElementById("lo-gradient-color2");
+            const gAngle = document.getElementById("lo-gradient-angle");
+            const gAngleVal = document.getElementById("lo-gradient-angle-value");
+
+            if (g1 && bg.gradient.colors?.[0]) g1.value = bg.gradient.colors[0];
+            if (g2 && bg.gradient.colors?.[1]) g2.value = bg.gradient.colors[1];
+            if (gAngle && bg.gradient.angle !== undefined) {
+                gAngle.value = bg.gradient.angle;
+                if (gAngleVal) gAngleVal.textContent = `${bg.gradient.angle}°`;
+            }
         }
 
         if (panoramaControls) {
@@ -1349,7 +1346,7 @@ export class UIManager {
                 <input
                     id="lo-hotspot-target-url"
                     type="text"
-                    placeholder="./projects/other/other.lo.json"
+                    placeholder="./projects/other/other.json"
                     value="${this.lo.selectedHotspot.targetUrl || ""}"
                     style="width: 100%; margin-bottom: 12px;">
             ` : `

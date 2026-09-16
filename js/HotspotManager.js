@@ -47,6 +47,8 @@ export class HotspotManager {
 
         this.lo.hotspots.push(hotspot);
 
+        this.lo.projectManager?.saveDraft?.();
+
         return hotspot;
     }
 
@@ -91,6 +93,8 @@ export class HotspotManager {
 
             this.lo.uiManager?.refresh();
         }
+
+        this.lo.projectManager?.saveDraft?.();
     }
 
     deleteSelected() {
@@ -111,6 +115,8 @@ export class HotspotManager {
         this.lo.selectedHotspot.title = title;
 
         this.refresh();
+
+        this.lo.projectManager?.saveDraft?.();
     }
 
     startMove() {
@@ -146,6 +152,8 @@ export class HotspotManager {
 
             this.lo.uiManager?.refresh();
         }
+
+        this.lo.projectManager?.saveDraft?.();
 
         this.lo.uiManager?.showToast(
             "✓ Hotspot position updated"

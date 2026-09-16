@@ -2,6 +2,16 @@ export class ProjectManager {
 
     constructor(lo) {
         this.lo = lo;
+        this.STORAGE_KEY = "lo_editor_autosave";
+        this._sourceContext = null;
+        this._currentProjectSlug = null;
+        this._draftSaveTimeout = null;
+
+        if (typeof window !== "undefined") {
+            window.addEventListener("beforeunload", () => {
+                this.saveDraftImmediate();
+            });
+        }
     }
 
     export() {
@@ -66,6 +76,12 @@ export class ProjectManager {
     }
 
     async import(json, sourceContext = null) {
+
+        this._sourceContext = sourceContext;
+        if (sourceContext) {
+            const ctxSlug = typeof sourceContext === "string" ? sourceContext : sourceContext.name;
+            this._currentProjectSlug = this.extractProjectSlug(ctxSlug);
+        }
 
         const project =
             this.lo.serializer.import(json);
@@ -400,6 +416,7 @@ export class ProjectManager {
 
             this.lo.uiManager?.refresh();
             this.lo.uiManager?.updateViewerLogoUI?.();
+            this.saveDraft();
         }
     }
 
@@ -430,24 +447,148 @@ export class ProjectManager {
 
         a.href = URL.createObjectURL(blob);
 
+        let baseName = this.lo.projectcard?.name || "project";
+        baseName = baseName.replace(/\.lo(\.json)?$/i, '').replace(/\.json$/i, '').trim() || "project";
+
         a.download =
-
             filename ||
-
-            `${this.lo.projectcard.name}.lo.json`;
+            `${baseName}.json`;
 
         a.click();
 
         URL.revokeObjectURL(a.href);
     }
 
+    saveDraft() {
+        if (!this.lo.isEditor?.()) return;
+        if (this._draftSaveTimeout) {
+            clearTimeout(this._draftSaveTimeout);
+        }
+        this._draftSaveTimeout = setTimeout(() => {
+            this.saveDraftImmediate();
+        }, 300);
+    }
+
+    saveDraftImmediate() {
+        if (!this.lo.isEditor?.()) return;
+        try {
+            const projectJson = this.export();
+            const slug = this._currentProjectSlug || this.extractProjectSlug(this._sourceContext || this.lo.projectcard?.name || "");
+            const draft = {
+                version: 1,
+                timestamp: Date.now(),
+                sourceContext: typeof this._sourceContext === "string" ? this._sourceContext : (this._sourceContext?.name || null),
+                projectSlug: slug,
+                projectJson: projectJson
+            };
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(draft));
+        } catch (e) {
+            console.warn("[ProjectManager] Draft auto-save error:", e);
+        }
+    }
+
+    getSavedDraft() {
+        try {
+            const raw = localStorage.getItem(this.STORAGE_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    clearDraft() {
+        try {
+            localStorage.removeItem(this.STORAGE_KEY);
+        } catch (e) {}
+    }
+
+    async restoreDraft(expectedSlug = null) {
+        const draft = this.getSavedDraft();
+        if (!draft || !draft.projectJson) return false;
+        if (expectedSlug) {
+            const expClean = String(expectedSlug).toLowerCase().trim();
+            const draftSlug = String(draft.projectSlug || "").toLowerCase().trim();
+            const draftCtxSlug = String(this.extractProjectSlug(draft.sourceContext) || "").toLowerCase().trim();
+            if (draftSlug !== expClean && draftCtxSlug !== expClean) {
+                return false;
+            }
+        }
+        try {
+            console.log("[ProjectManager] Restoring editor auto-saved draft from localStorage");
+            this._sourceContext = draft.sourceContext;
+            this._currentProjectSlug = draft.projectSlug;
+            await this.import(draft.projectJson, draft.sourceContext);
+            this.lo.uiManager?.showToast("✓ Restored unsaved draft");
+            return true;
+        } catch (err) {
+            console.warn("[ProjectManager] Failed to restore draft:", err);
+            return false;
+        }
+    }
+
+    newProject() {
+        if (typeof window !== "undefined" && window.confirm) {
+            if (!window.confirm("Start a new project? Any unsaved draft changes will be cleared.")) {
+                return;
+            }
+        }
+        this.clearDraft();
+        if (typeof window !== "undefined" && window.history?.pushState) {
+            try {
+                const url = new URL(window.location.href);
+                if (url.searchParams.has("project")) {
+                    url.searchParams.delete("project");
+                    window.history.pushState({}, "", url.toString());
+                }
+            } catch (e) {}
+        }
+        this._sourceContext = null;
+        this._currentProjectSlug = null;
+        const defaultProject = {
+            project: {
+                name: "Untitled Project",
+                version: 2,
+                scene: "",
+                theme: "dark",
+                autospinOnLoad: false,
+                tourAutoplayOnLoad: false,
+                tourDwellTime: 5000,
+                viewerLogo: {
+                    visible: true,
+                    type: "default",
+                    url: "",
+                    filename: ""
+                },
+                background: {
+                    type: "color",
+                    color: "#2a2a2a",
+                    gradient: {
+                        mode: "linear",
+                        angle: 135,
+                        colors: ["#202020", "#606060"]
+                    },
+                    image: { url: "", fit: "cover" },
+                    panorama: { url: "", rotation: 0 }
+                }
+            },
+            cameras: {},
+            hotspots: []
+        };
+        this.import(JSON.stringify(defaultProject), null);
+        this.lo.unloadGsplat?.();
+        this.lo.uiManager?.showToast("✓ New project created");
+    }
+
     load(file) {
 
         const reader = new FileReader();
 
-        reader.onload = () =>
-
+        reader.onload = () => {
+            this._sourceContext = file;
+            this._currentProjectSlug = this.extractProjectSlug(file.name);
             this.import(reader.result, file);
+        };
 
         reader.readAsText(file);
     }
@@ -469,6 +610,8 @@ export class ProjectManager {
 
         console.log(`[ProjectManager] Loading project from URL: ${fetchUrl}`);
 
+        this._sourceContext = fetchUrl;
+        this._currentProjectSlug = this.extractProjectSlug(fetchUrl);
         this.lo._isProjectLoading = true;
         try {
             const response =
@@ -510,7 +653,7 @@ export class ProjectManager {
 
     applyBackground() {
 
-        this.lo.backgroundManager.apply();
+        this.lo.backgroundManager?.apply?.();
 
     }
 
